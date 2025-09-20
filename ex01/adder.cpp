@@ -6,11 +6,9 @@
 /*   By: rrichard <rrichard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/20 13:31:15 by rrichard          #+#    #+#             */
-/*   Updated: 2025/09/20 17:28:56 by rrichard         ###   ########.fr       */
+/*   Updated: 2025/09/20 19:53:44 by rrichard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
-#include <iostream>
 
 int	adder( int a, int b )
 {

@@ -1,26 +1,15 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   adder.cpp                                          :+:      :+:    :+:   */
+/*   GrayCode.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: rrichard <rrichard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/09/20 13:31:15 by rrichard          #+#    #+#             */
-/*   Updated: 2025/09/20 19:53:44 by rrichard         ###   ########.fr       */
+/*   Created: 2025/09/20 19:51:00 by rrichard          #+#    #+#             */
+/*   Updated: 2025/09/20 19:51:40 by rrichard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-int	adder( int a, int b )
-{
-	int	x = a;
-	int	y = b;
-	int	carry;
-	
-	while (y != 0)
-	{
-		carry = (x & y) << 1;
-		x = x ^ y;
-		y = carry;
-	}
-	return (x);
-}
+#include <iostream>
+#include "../ex00/adder.cpp"
+
