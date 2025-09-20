@@ -1,18 +1,18 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   GrayCode.cpp                                       :+:      :+:    :+:   */
+/*   GrayCode.h                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: rrichard <rrichard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/09/20 19:51:00 by rrichard          #+#    #+#             */
-/*   Updated: 2025/09/20 20:46:19 by rrichard         ###   ########.fr       */
+/*   Created: 2025/09/20 20:39:15 by rrichard          #+#    #+#             */
+/*   Updated: 2025/09/20 20:47:04 by rrichard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "GrayCode.h"
+#ifndef GRAYCODE_H
+# define GRAYCODE_H
 
-int	GrayCode( int n )
-{
-	return ((n ^ (n << 1)) >> 1);
-}
+int	GrayCode( int );
+
+#endif //GRAYCODE_H

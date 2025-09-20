@@ -18,7 +18,8 @@ OBJS = $(SRCS:$(SRCS_PATH)%.cpp=$(OBJS_PATH)%.o)
 #                                   SRCS_FILES                                 #
 ################################################################################
 
-SRCS_FILES =	multiplier.cpp \
+SRCS_FILES =	GrayCode.cpp \
+				main.cpp \
 
 ################################################################################
 #                                    COlORS                                    #
