@@ -2,7 +2,7 @@
 #                                   VARIABLES                                  #
 ################################################################################
 
-NAME = BooleanEval
+NAME = Parser
 CC = c++
 
 CFLAGS = -Werror -Wall -Wextra -std=c++17
@@ -18,9 +18,7 @@ OBJS = $(SRCS:$(SRCS_PATH)%.cpp=$(OBJS_PATH)%.o)
 #                                   SRCS_FILES                                 #
 ################################################################################
 
-SRCS_FILES =	multiplier.cpp \
-				adder.cpp \
-				main.cpp \
+SRCS_FILES =	parser.cpp
 
 ################################################################################
 #                                    COlORS                                    #
