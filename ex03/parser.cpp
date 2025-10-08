@@ -6,7 +6,7 @@
 /*   By: rrichard <rrichard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/22 12:05:45 by rrichard          #+#    #+#             */
-/*   Updated: 2025/09/22 14:16:27 by rrichard         ###   ########.fr       */
+/*   Updated: 2025/10/08 13:48:40 by rrichard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,22 +15,19 @@
 #include <sstream>
 #include <string>
 #include <cstdlib>
+#include <stdio.h>
 
-bool	evaluate( const std::string& expression )
+bool	evaluate( char *str )
 {
-	std::istringstream	tokens(expression);
-	std::string			token;
 	std::stack<bool>	stack;
 
-	while (tokens >> token)
+	for (int i = 0; str[i] != '\0'; i++)
 	{
-		if (token.size() == 1 && (token == "0" || token == "1"))
-			stack.push(token == "0" ? false : true);
-		else if (token.size() != 1)
-			throw std::runtime_error("Error: invalid input.");
+		if (str[i] == '0' || str[i] == '1')
+			stack.push(str[i] == '0' ? false : true);
 		else
 		{
-			if (token == "!")
+			if (str[i] == '!')
 			{
 				bool operand = stack.top();
 				stack.pop();
@@ -42,15 +39,15 @@ bool	evaluate( const std::string& expression )
 				stack.pop();
 				bool operand2 = stack.top();
 				stack.pop();
-				if (token == "&")
+				if (str[i] == '&')
 					stack.push(operand1 && operand2);
-				else if (token == "|")
+				else if (str[i] == '|')
 					stack.push(operand1 || operand2);
-				else if (token == "^")
+				else if (str[i] == '^')
 					stack.push(operand1 ^ operand2);
-				else if (token == ">")
+				else if (str[i] == '>')
 					stack.push(!operand1 || operand2);
-				else if (token == "=")
+				else if (str[i] == '=')
 					stack.push(operand1 == operand2);
 				else
 					throw std::runtime_error("Error: operator not supported");
@@ -66,19 +63,17 @@ int	main( int argc, char *argv[] )
 {
 	if (argc != 2)
 	{
-		std::cerr << "Too many arguments.\n";
+		std::cerr << "Error: wrong number of arguments.\n";
 		return (1);
 	}
 	try
 	{
-		bool	result;
-		std::string	expression = argv[1];
-		result = evaluate(expression);
+		bool	result = evaluate(argv[1]);
 		std::cout << "Result: " << result << std::endl;
 	}
 	catch(const std::exception& e)
 	{
-		std::cerr << e.what() << '\n';
+		std::cerr << e.what() << std::endl;
 	}
 	return (0);
 }
