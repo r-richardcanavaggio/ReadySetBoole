@@ -6,13 +6,17 @@
 /*   By: rrichard <rrichard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/12 15:09:29 by rrichard          #+#    #+#             */
-/*   Updated: 2025/10/12 17:44:50 by rrichard         ###   ########.fr       */
+/*   Updated: 2025/10/14 12:48:45 by rrichard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <memory>
 #include <string>
 #include <vector>
+#include <map>
+#include <queue>
+#include <algorithm>
+#include <unordered_map>
 #include <iostream>
 #include <sstream>
 
@@ -180,15 +184,46 @@ std::string	getNodeSymbol( const ASTNode* node )
 	}
 }
 
-void	printAST( const ASTNode* node, const std::string& prefix = "", bool isLeft = true )
+std::vector<std::vector<std::string>>	verticalOrder( ASTNode* root, int& minColumn )
 {
-	if (!node)
-		return ;
-	if (node->right)
-		printAST(node->right.get(), prefix + (isLeft ? "|   " : "    "), false);
-	std::cout << prefix << (isLeft ? "`-- " : ",-- ") << getNodeSymbol(node) << std::endl;
-	if (node->left)
-		printAST(node->left.get(), prefix + (isLeft ? "    " : "|   "), true);
+	std::unordered_map<int, std::vector<std::string>>	lst;
+	std::queue<std::pair<ASTNode *, int>>		q;
+
+	q.push({root, 0});
+	int	min = 0, max = 0;
+	
+	while (!q.empty())
+	{
+		auto current = q.front();
+		min = std::min(min, current.second);
+		max = std::max(max, current.second);
+		q.pop();
+
+		lst[current.second].push_back(getNodeSymbol(current.first));
+		if (current.first->left)
+			q.push({current.first->left.get(), current.second - 1});
+		if (current.first->right)
+			q.push({current.first->right.get(), current.second + 1});
+	}
+	minColumn = min;
+	std::vector<std::vector<std::string>>	res;
+	for (int i = min; i <= max; i++)
+		res.push_back(lst[i]);
+	return (res);
+}
+
+void printTreeWithBranches(ASTNode* node, int depth = 0, int indent = 0) {
+    if (!node) return;
+    // Print the right subtree
+    printTreeWithBranches(node->right.get(), depth + 1, indent + 4);
+    // Print the current node with appropriate indentation
+    std::cout << std::string(indent, ' ') << getNodeSymbol(node) << std::endl;
+    // Print the branches
+    if (node->left || node->right) {
+        std::cout << std::string(indent - 1, ' ') << "/" << std::string(1, ' ') << "\\" << std::endl;
+    }
+    // Print the left subtree
+    printTreeWithBranches(node->left.get(), depth + 1, indent + 4);
 }
 
 int	main( void )
@@ -200,7 +235,7 @@ int	main( void )
 	try
 	{
 		auto	ast = parse(input);
-		printAST(ast.get());
+		printTreeWithBranches(ast.get());
 	}
 	catch (const std::exception& e)
 	{
