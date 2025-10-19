@@ -6,7 +6,7 @@
 /*   By: rrichard <rrichard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/15 10:13:03 by rrichard          #+#    #+#             */
-/*   Updated: 2025/10/15 19:08:07 by rrichard         ###   ########.fr       */
+/*   Updated: 2025/10/19 14:35:20 by rrichard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,12 +16,8 @@
 #include <memory>
 #include <string>
 #include <vector>
-#include <map>
-#include <queue>
 #include <algorithm>
-#include <unordered_map>
 #include <iostream>
-#include <sstream>
 
 enum class NodeType
 {
@@ -41,12 +37,6 @@ struct ASTNode
 	NodeType					type;
 	std::string					value;
 	std::unique_ptr<ASTNode>	left, right;
-	ASTNode*					parent;
-	int							x = 0;
-	int							y = 0;
-	int							depth = 0;
-	double						prelim = 0.0;
-	double						mod = 0.0;
 
 	ASTNode(NodeType type, std::string value, std::unique_ptr<ASTNode> left = nullptr, std::unique_ptr<ASTNode> right = nullptr)
 		: type(type), value(value), left(std::move(left)), right(std::move(right)) {}

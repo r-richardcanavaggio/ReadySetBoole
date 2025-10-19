@@ -6,7 +6,7 @@
 /*   By: rrichard <rrichard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/12 15:09:29 by rrichard          #+#    #+#             */
-/*   Updated: 2025/10/15 22:26:36 by rrichard         ###   ########.fr       */
+/*   Updated: 2025/10/19 14:32:23 by rrichard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ std::unique_ptr<ASTNode>	parseFormula( std::vector<std::string>::iterator &it, s
 	{
 		it++;
 		auto	right = parseImplication(it, end);
-		left = std::make_unique<ASTNode>(NodeType::LOGICAL_EQUIVALENCE, "", std::move(left), std::move(right));
+		left = std::make_unique<ASTNode>(NodeType::LOGICAL_EQUIVALENCE, "=", std::move(left), std::move(right));
 	}
 	return (left);
 }
@@ -31,7 +31,7 @@ std::unique_ptr<ASTNode>	parseImplication( std::vector<std::string>::iterator &i
 	{
 		it++;
 		auto	right = parseDisjunction(it, end);
-		left = std::make_unique<ASTNode>(NodeType::MATERIAL_CONDITION, "", std::move(left), std::move(right));
+		left = std::make_unique<ASTNode>(NodeType::MATERIAL_CONDITION, ">", std::move(left), std::move(right));
 	}
 	return (left);
 }
@@ -45,9 +45,9 @@ std::unique_ptr<ASTNode>	parseDisjunction( std::vector<std::string>::iterator &i
 		it++;
 		auto	right = parseTerm(it, end);
 		if (op == "^")
-			left = std::make_unique<ASTNode>(NodeType::EXCLUSIVE_DISJUNCTION, "", std::move(left), std::move(right));
+			left = std::make_unique<ASTNode>(NodeType::EXCLUSIVE_DISJUNCTION, "^", std::move(left), std::move(right));
 		else // op == "|"
-			left = std::make_unique<ASTNode>(NodeType::DISJUNCTION, "", std::move(left), std::move(right));
+			left = std::make_unique<ASTNode>(NodeType::DISJUNCTION, "|", std::move(left), std::move(right));
 	}
 	return (left);
 }
@@ -59,7 +59,7 @@ std::unique_ptr<ASTNode>	parseTerm( std::vector<std::string>::iterator &it, std:
 	{
 		it++;
 		auto	right = parseFactor(it, end);
-		left = std::make_unique<ASTNode>(NodeType::CONJUNCTION, "", std::move(left), std::move(right));
+		left = std::make_unique<ASTNode>(NodeType::CONJUNCTION, "&", std::move(left), std::move(right));
 	}
 	return (left);
 }
@@ -70,7 +70,7 @@ std::unique_ptr<ASTNode>	parseFactor( std::vector<std::string>::iterator &it, st
 	{
 		it++;
 		auto operand = parseFactor(it, end);
-		return (std::make_unique<ASTNode>(NodeType::NEGATION, "", std::move(operand), nullptr));
+		return (std::make_unique<ASTNode>(NodeType::NEGATION, "!", std::move(operand), nullptr));
 	}
 	else
 		return (parsePrimary(it, end));
@@ -94,13 +94,13 @@ std::unique_ptr<ASTNode>	parsePrimary( std::vector<std::string>::iterator &it, s
 		NodeType	type = (*it == "0") ? NodeType::FALSE : NodeType::TRUE;
 		std::string	value = *it;
 		it++;
-		return (std::make_unique<ASTNode>(type, std::move(value), nullptr, nullptr));
+		return (std::make_unique<ASTNode>(type, value, nullptr, nullptr));
 	}
 	else if (it->size() == 1 && isalpha((*it)[0]))
 	{
 		std::string	value = *it;
 		it++;
-		return (std::make_unique<ASTNode>(NodeType::VARIABLE, std::move(value), nullptr, nullptr));
+		return (std::make_unique<ASTNode>(NodeType::VARIABLE, value, nullptr, nullptr));
 	}
 	else
 		throw std::runtime_error("Unexpected token: " + *it);
@@ -109,11 +109,15 @@ std::unique_ptr<ASTNode>	parsePrimary( std::vector<std::string>::iterator &it, s
 std::vector<std::string>	tokenize( const std::string& input )
 {
 	std::vector<std::string>	tokens;
-	std::istringstream			iss(input);
-	std::string					token;
 
-	while (iss >> token)
-		tokens.push_back(token);
+	for (size_t i = 0; i < input.size(); i++)
+	{
+		if (input[i] != ' ')
+		{
+			std::string s(1, input[i]);
+			tokens.push_back(s);
+		}
+	}
 	return (tokens);
 }
 
@@ -128,221 +132,17 @@ std::unique_ptr<ASTNode>	parse( const std::string& input )
 	return (ast);
 }
 
-std::string	getNodeSymbol( const ASTNode* node )
+int GLOBALSPACE = 5;
+void	print2D( ASTNode* node, int space )
 {
-	switch (node->type)
-	{
-		case NodeType::FALSE: return "0";
-		case NodeType::TRUE: return "1";
-		case NodeType::NEGATION: return "!";
-		case NodeType::CONJUNCTION: return "&";
-		case NodeType::DISJUNCTION: return "|";
-		case NodeType::EXCLUSIVE_DISJUNCTION: return "^";
-		case NodeType::MATERIAL_CONDITION: return ">";
-		case NodeType::LOGICAL_EQUIVALENCE: return "=";
-		case NodeType::VARIABLE: return node->value;
-		default: return "?";
-	}
-}
-
-static constexpr double HSEP = 2.0;
-
-ASTNode*	getLeftSibling( ASTNode* node )
-{
-	if (!node || !node->parent)
-	return (nullptr);
-	ASTNode*	parent = node->parent;
-	if (parent->right.get() == node && parent->left)
-	return (parent->left.get());
-	return (nullptr);
-}
-
-void	setParentsAndDepth( ASTNode* node, ASTNode* parent = nullptr, int depth = 0 )
-{
-	if (!node) return ;
-	node->parent = parent;
-	node->depth = depth;
-	setParentsAndDepth(node->left.get(), node, depth + 1);
-	setParentsAndDepth(node->right.get(), node, depth + 1);
-}
-
-void	fillContours( const ASTNode* node, double accMod, int d, std::unordered_map<int, double>& leftmost, std::unordered_map<int, double>& rightmost )
-{
-	if (!node) return;
-	double x = node->prelim + accMod;
-	if (!leftmost.count(d) || x < leftmost[d]) leftmost[d] = x;
-	if (!rightmost.count(d) || x > rightmost[d]) rightmost[d] = x;
-	fillContours(node->left.get(), accMod + node->mod, d + 1, leftmost, rightmost);
-	fillContours(node->right.get(), accMod + node->mod, d + 1, leftmost, rightmost);
-}
-
-double	computeShift( const ASTNode* L, const ASTNode* R, double sep )
-{
-	if (!L || !R) return (0.0);
-	std::unordered_map<int, double>	Lleft, Lright, Rleft, Rright;
-	fillContours(L, L->mod, 0, Lleft, Lright);
-	fillContours(R, R->mod, 0, Rleft, Rright);
-
-	double	need = 0.0;
-	int		maxDepth = std::min<int>(Lright.size(), Rleft.size());
-	for (int d = 0; d < maxDepth; d++)
-	{
-		if (Lright.count(d) && Rleft.count(d))
-		{
-			double	overlap = (Lright[d] + sep) - Rleft[d];
-			if (overlap > 0.0) need = std::max(need, overlap);
-		}
-	}
-	return (need);
-}
-
-void	calculateInitialX( ASTNode* node )
-{
-	if (!node) return ;
+	if (!node)	return ;
 	
-	calculateInitialX(node->left.get());
-	calculateInitialX(node->right.get());
-	
-	if (!node->left && !node->right)
-	{
-		if (ASTNode* prev = getLeftSibling(node))
-			node->prelim = prev->prelim + HSEP;
-		else
-			node->prelim = 0.0;
-		return ;
-	}
-
-	if (node->left && node->right)
-	{
-		double shift = computeShift(node->left.get(), node->right.get(), HSEP);
-		if (shift > 0.0)
-			node->right->mod += shift;
-		double L = node->left->prelim + node->left->mod;
-		double R = node->right->prelim + node->right->mod;	
-		node->prelim = (L + R) / 2.0;
-	}
-	else if (node->left)
-		node->prelim = node->left->prelim + node->left->mod;
-	else
-		node->prelim = node->right->prelim + node->right->mod;
-}
-
-void	secondWalk( ASTNode* node, double accMod )
-{
-	if (!node) return ;
-	
-	accMod += node->mod;
-	double cur = node->prelim + accMod;
-	node->x = static_cast<int>(std::round(cur));
-	node->y = node->depth;
-	
-	secondWalk(node->left.get(), accMod);
-	secondWalk(node->right.get(), accMod);
-}
-
-void dumpLayoutDFS(const ASTNode* n)
-{
-    if (!n) return;
-    std::cout << std::string(n->depth * 2, ' ')
-              << getNodeSymbol(n)
-              << "  depth=" << n->depth
-              << " prelim=" << n->prelim
-              << " mod=" << n->mod
-              << " -> x=" << n->x
-              << " y=" << n->y
-              << '\n';
-    dumpLayoutDFS(n->left.get());
-    dumpLayoutDFS(n->right.get());
-}
-
-void dumpXPreorder(const ASTNode* n) // if you want only x
-{
-    if (!n) return;
-    std::cout << getNodeSymbol(n) << ", x = " << n->x << '\n';
-    dumpXPreorder(n->left.get());
-    dumpXPreorder(n->right.get());
-}
-
-static void collectExtents(const ASTNode* n, int& minX, int& maxX, int& maxD) {
-    if (!n) return;
-    minX = std::min(minX, n->x);
-    maxX = std::max(maxX, n->x);
-    maxD = std::max(maxD, n->depth);
-    collectExtents(n->left.get(),  minX, maxX, maxD);
-    collectExtents(n->right.get(), minX, maxX, maxD);
-}
-
-static void gatherByDepth(const ASTNode* root, std::vector<std::vector<const ASTNode*>>& levels) {
-    if (!root) return;
-    std::queue<const ASTNode*> q;
-    q.push(root);
-    while (!q.empty()) {
-        auto n = q.front(); q.pop();
-        if (n->depth >= (int)levels.size()) levels.resize(n->depth + 1);
-        levels[n->depth].push_back(n);
-        if (n->left)  q.push(n->left.get());
-        if (n->right) q.push(n->right.get());
-    }
-	for (auto& lvl : levels)
-        std::sort(lvl.begin(), lvl.end(), [](const ASTNode* a, const ASTNode* b){ return a->x < b->x; });
-}
-
-void printByXY(const ASTNode* root, int scale = 2) {
-    if (!root) return;
-
-    int minX = root->x, maxX = root->x, maxDepth = root->depth;
-    collectExtents(root, minX, maxX, maxDepth);
-
-    const int width = (maxX - minX) * scale + 1;
-    std::vector<std::vector<const ASTNode*>> levels;
-    gatherByDepth(root, levels);
-
-    for (int d = 0; d < (int)levels.size(); ++d) {
-        // Nodes line
-        std::string line(width, ' ');
-        for (const ASTNode* n : levels[d]) {
-            const std::string label = getNodeSymbol(n);
-            int cx = (n->x - minX) * scale;
-            int start = std::max(0, cx - (int)label.size() / 2);
-            for (int i = 0; i < (int)label.size(); ++i) {
-                int pos = start + i;
-                if (pos >= 0 && pos < width) line[pos] = label[i];
-            }
-        }
-        std::cout << line << '\n';
-
-        // Connectors line (between this level and the next)
-        if (d + 1 < (int)levels.size()) {
-            std::string conn(width, ' ');
-            for (const ASTNode* n : levels[d]) {
-                int pc = (n->x - minX) * scale;
-                bool hasL = (n->left  != nullptr);
-                bool hasR = (n->right != nullptr);
-                if (!hasL && !hasR) continue;
-
-                // 1) Draw child paths first (so the "/\" below can overwrite near the parent)
-                if (hasL) {
-                    int lc = (n->left->x - minX) * scale;
-                    if (lc < pc) {
-                        conn[std::max(0, lc)] = '/';
-                        for (int k = lc + 1; k < pc; ++k) conn[k] = '_';
-                    }
-                }
-                if (hasR) {
-                    int rc = (n->right->x - minX) * scale;
-                    if (rc > pc) {
-                        conn[std::min(width - 1, rc)] = '\\';
-                        for (int k = pc + 1; k < rc; ++k) conn[k] = '_';
-                    }
-                }
-
-                // 2) Always draw a small "/\" under the parent for visual symmetry
-                if (pc - 1 >= 0)           conn[pc - 1] = '/';
-                if (pc + 1 < (int)width)   conn[pc + 1] = '\\';
-            }
-            std::cout << conn << '\n';
-        }
-    }
+	space += GLOBALSPACE;
+	print2D(node->right.get(), space);
+	std::cout << std::endl;
+	std::string	s(space - GLOBALSPACE, ' ');
+	std::cout << s << node->value << std::endl;
+	print2D(node->left.get(), space);
 }
 
 int	main( void )
@@ -373,19 +173,12 @@ int	main( void )
 			std::unique_ptr<ASTNode> N = std::make_unique<ASTNode>(NodeType::VARIABLE, "N", std::move(G), std::move(M));
 	
 			std::unique_ptr<ASTNode> root = std::make_unique<ASTNode>(NodeType::VARIABLE, "O", std::move(E), std::move(N));
-			
-			setParentsAndDepth(root.get());
-			calculateInitialX(root.get());
-			secondWalk(root.get(), 0.0);
-			printByXY(root.get(), 6);
+			print2D(root.get(), GLOBALSPACE);
 		}
 		else
 		{
 			auto	ast = parse(input);
-			setParentsAndDepth(ast.get());
-			calculateInitialX(ast.get());
-			secondWalk(ast.get(), 0.0);
-			printByXY(ast.get(), 6);
+			print2D(ast.get(), GLOBALSPACE);
 		}
 
 	}
