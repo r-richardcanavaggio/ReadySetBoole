@@ -6,75 +6,11 @@
 /*   By: rrichard <rrichard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/12 15:09:29 by rrichard          #+#    #+#             */
-/*   Updated: 2025/10/19 14:32:23 by rrichard         ###   ########.fr       */
+/*   Updated: 2025/10/19 15:54:52 by rrichard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "AST.hpp"
-
-std::unique_ptr<ASTNode>	parseFormula( std::vector<std::string>::iterator &it, std::vector<std::string>::iterator end )
-{
-	auto	left = parseImplication(it, end);
-	while (it != end && *it == "=")
-	{
-		it++;
-		auto	right = parseImplication(it, end);
-		left = std::make_unique<ASTNode>(NodeType::LOGICAL_EQUIVALENCE, "=", std::move(left), std::move(right));
-	}
-	return (left);
-}
-
-std::unique_ptr<ASTNode>	parseImplication( std::vector<std::string>::iterator &it, std::vector<std::string>::iterator end )
-{
-	auto	left = parseDisjunction(it, end);
-	while (it != end && *it == ">")
-	{
-		it++;
-		auto	right = parseDisjunction(it, end);
-		left = std::make_unique<ASTNode>(NodeType::MATERIAL_CONDITION, ">", std::move(left), std::move(right));
-	}
-	return (left);
-}
-
-std::unique_ptr<ASTNode>	parseDisjunction( std::vector<std::string>::iterator &it, std::vector<std::string>::iterator end )
-{
-	auto left = parseTerm(it, end);
-	while (it != end && (*it == "^" || *it == "|"))
-	{
-		std::string op = *it;
-		it++;
-		auto	right = parseTerm(it, end);
-		if (op == "^")
-			left = std::make_unique<ASTNode>(NodeType::EXCLUSIVE_DISJUNCTION, "^", std::move(left), std::move(right));
-		else // op == "|"
-			left = std::make_unique<ASTNode>(NodeType::DISJUNCTION, "|", std::move(left), std::move(right));
-	}
-	return (left);
-}
-
-std::unique_ptr<ASTNode>	parseTerm( std::vector<std::string>::iterator &it, std::vector<std::string>::iterator end )
-{
-	auto	left = parseFactor(it, end);
-	while (it != end && *it == "&")
-	{
-		it++;
-		auto	right = parseFactor(it, end);
-		left = std::make_unique<ASTNode>(NodeType::CONJUNCTION, "&", std::move(left), std::move(right));
-	}
-	return (left);
-}
-
-std::unique_ptr<ASTNode>	parseFactor( std::vector<std::string>::iterator &it, std::vector<std::string>::iterator end )
-{
-	if (it != end && *it == "!")
-	{
-		it++;
-		auto operand = parseFactor(it, end);
-		return (std::make_unique<ASTNode>(NodeType::NEGATION, "!", std::move(operand), nullptr));
-	}
-	else
-		return (parsePrimary(it, end));
-}
 
 std::unique_ptr<ASTNode>	parsePrimary( std::vector<std::string>::iterator &it, std::vector<std::string>::iterator end )
 {
@@ -104,6 +40,70 @@ std::unique_ptr<ASTNode>	parsePrimary( std::vector<std::string>::iterator &it, s
 	}
 	else
 		throw std::runtime_error("Unexpected token: " + *it);
+}
+
+std::unique_ptr<ASTNode>	parseFactor( std::vector<std::string>::iterator &it, std::vector<std::string>::iterator end )
+{
+	if (it != end && *it == "!")
+	{
+		it++;
+		auto operand = parseFactor(it, end);
+		return (std::make_unique<ASTNode>(NodeType::NEGATION, "!", std::move(operand), nullptr));
+	}
+	else
+		return (parsePrimary(it, end));
+}
+
+std::unique_ptr<ASTNode>	parseTerm( std::vector<std::string>::iterator &it, std::vector<std::string>::iterator end )
+{
+	auto	left = parseFactor(it, end);
+	while (it != end && *it == "&")
+	{
+		it++;
+		auto	right = parseFactor(it, end);
+		left = std::make_unique<ASTNode>(NodeType::CONJUNCTION, "&", std::move(left), std::move(right));
+	}
+	return (left);
+}
+
+std::unique_ptr<ASTNode>	parseDisjunction( std::vector<std::string>::iterator &it, std::vector<std::string>::iterator end )
+{
+	auto left = parseTerm(it, end);
+	while (it != end && (*it == "^" || *it == "|"))
+	{
+		std::string op = *it;
+		it++;
+		auto	right = parseTerm(it, end);
+		if (op == "^")
+			left = std::make_unique<ASTNode>(NodeType::EXCLUSIVE_DISJUNCTION, "^", std::move(left), std::move(right));
+		else // op == "|"
+			left = std::make_unique<ASTNode>(NodeType::DISJUNCTION, "|", std::move(left), std::move(right));
+	}
+	return (left);
+}
+
+std::unique_ptr<ASTNode>	parseImplication( std::vector<std::string>::iterator &it, std::vector<std::string>::iterator end )
+{
+	auto	left = parseDisjunction(it, end);
+	while (it != end && *it == ">")
+	{
+		it++;
+		auto	right = parseDisjunction(it, end);
+		left = std::make_unique<ASTNode>(NodeType::MATERIAL_CONDITION, ">", std::move(left), std::move(right));
+	}
+	return (left);
+}
+
+std::unique_ptr<ASTNode>	parseFormula( std::vector<std::string>::iterator &it, std::vector<std::string>::iterator end )
+{
+	auto	left = parseImplication(it, end);
+	while (it != end && *it == "=")
+	{
+		it++;
+		auto	right = parseImplication(it, end);
+		left = std::make_unique<ASTNode>(NodeType::LOGICAL_EQUIVALENCE, "=", std::move(left), std::move(right));
+	}
+	return (left);
 }
 
 std::vector<std::string>	tokenize( const std::string& input )
