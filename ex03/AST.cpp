@@ -6,45 +6,47 @@
 /*   By: rrichard <rrichard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/12 15:09:29 by rrichard          #+#    #+#             */
-/*   Updated: 2025/10/19 15:54:52 by rrichard         ###   ########.fr       */
+/*   Updated: 2025/10/21 10:11:22 by rrichard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "AST.hpp"
 
-std::unique_ptr<ASTNode>	parsePrimary( std::vector<std::string>::iterator &it, std::vector<std::string>::iterator end )
+using namespace std;
+
+std::unique_ptr<ASTNode>	parsePrimary( string::iterator &it, string::iterator end )
 {
 	if (it == end)
 		throw std::runtime_error("Unexpected end of input");
-	if (*it == "(")
+	if (*it == '(')
 	{
 		it++;
 		auto expr = parseFormula(it, end);
-		if (it == end || *it != ")")
+		if (it == end || *it != ')')
 			throw std::runtime_error("Expected ')'");
 		it++;
 		return (expr);
 	}
-	else if (*it == "0" || *it == "1")
+	else if (*it == '0' || *it == '1')
 	{
-		NodeType	type = (*it == "0") ? NodeType::FALSE : NodeType::TRUE;
-		std::string	value = *it;
+		NodeType	type = (*it == '0') ? NodeType::FALSE : NodeType::TRUE;
+		string	value(1, *it);
 		it++;
 		return (std::make_unique<ASTNode>(type, value, nullptr, nullptr));
 	}
-	else if (it->size() == 1 && isalpha((*it)[0]))
+	else if (isalpha(*it))
 	{
-		std::string	value = *it;
+		string	value(1, *it);
 		it++;
 		return (std::make_unique<ASTNode>(NodeType::VARIABLE, value, nullptr, nullptr));
 	}
 	else
-		throw std::runtime_error("Unexpected token: " + *it);
+		throw std::runtime_error("Unexpected token: " + string(1, *it));
 }
 
-std::unique_ptr<ASTNode>	parseFactor( std::vector<std::string>::iterator &it, std::vector<std::string>::iterator end )
+std::unique_ptr<ASTNode>	parseFactor( string::iterator &it, string::iterator end )
 {
-	if (it != end && *it == "!")
+	if (it != end && *it == '!')
 	{
 		it++;
 		auto operand = parseFactor(it, end);
@@ -54,10 +56,10 @@ std::unique_ptr<ASTNode>	parseFactor( std::vector<std::string>::iterator &it, st
 		return (parsePrimary(it, end));
 }
 
-std::unique_ptr<ASTNode>	parseTerm( std::vector<std::string>::iterator &it, std::vector<std::string>::iterator end )
+std::unique_ptr<ASTNode>	parseTerm( string::iterator &it, string::iterator end )
 {
 	auto	left = parseFactor(it, end);
-	while (it != end && *it == "&")
+	while (it != end && *it == '&')
 	{
 		it++;
 		auto	right = parseFactor(it, end);
@@ -66,26 +68,26 @@ std::unique_ptr<ASTNode>	parseTerm( std::vector<std::string>::iterator &it, std:
 	return (left);
 }
 
-std::unique_ptr<ASTNode>	parseDisjunction( std::vector<std::string>::iterator &it, std::vector<std::string>::iterator end )
+std::unique_ptr<ASTNode>	parseDisjunction( string::iterator &it, string::iterator end )
 {
 	auto left = parseTerm(it, end);
-	while (it != end && (*it == "^" || *it == "|"))
+	while (it != end && (*it == '^' || *it == '|'))
 	{
-		std::string op = *it;
+		char op = *it;
 		it++;
 		auto	right = parseTerm(it, end);
-		if (op == "^")
+		if (op == '^')
 			left = std::make_unique<ASTNode>(NodeType::EXCLUSIVE_DISJUNCTION, "^", std::move(left), std::move(right));
-		else // op == "|"
+		else // op == '|'
 			left = std::make_unique<ASTNode>(NodeType::DISJUNCTION, "|", std::move(left), std::move(right));
 	}
 	return (left);
 }
 
-std::unique_ptr<ASTNode>	parseImplication( std::vector<std::string>::iterator &it, std::vector<std::string>::iterator end )
+std::unique_ptr<ASTNode>	parseImplication( string::iterator &it, string::iterator end )
 {
 	auto	left = parseDisjunction(it, end);
-	while (it != end && *it == ">")
+	while (it != end && *it == '>')
 	{
 		it++;
 		auto	right = parseDisjunction(it, end);
@@ -94,10 +96,10 @@ std::unique_ptr<ASTNode>	parseImplication( std::vector<std::string>::iterator &i
 	return (left);
 }
 
-std::unique_ptr<ASTNode>	parseFormula( std::vector<std::string>::iterator &it, std::vector<std::string>::iterator end )
+std::unique_ptr<ASTNode>	parseFormula( string::iterator &it, string::iterator end )
 {
 	auto	left = parseImplication(it, end);
-	while (it != end && *it == "=")
+	while (it != end && *it == '=')
 	{
 		it++;
 		auto	right = parseImplication(it, end);
@@ -106,29 +108,14 @@ std::unique_ptr<ASTNode>	parseFormula( std::vector<std::string>::iterator &it, s
 	return (left);
 }
 
-std::vector<std::string>	tokenize( const std::string& input )
+std::unique_ptr<ASTNode>	parse( string& input )
 {
-	std::vector<std::string>	tokens;
+	input.erase(remove(input.begin(), input.end(), ' '), input.end());
+	string::iterator	it = input.begin();
+	auto				ast = parseFormula(it, input.end());
 
-	for (size_t i = 0; i < input.size(); i++)
-	{
-		if (input[i] != ' ')
-		{
-			std::string s(1, input[i]);
-			tokens.push_back(s);
-		}
-	}
-	return (tokens);
-}
-
-std::unique_ptr<ASTNode>	parse( const std::string& input )
-{
-	std::vector<std::string>	tokens = tokenize(input);
-	auto						it = tokens.begin();
-	auto						ast = parseFormula(it, tokens.end());
-
-	if (it != tokens.end())
-		throw std::runtime_error("Unexpected token at end of input: " + *it);
+	if (it != input.end())
+		throw std::runtime_error(std::string("Unexpected token at end of input: ") + string(1, *it));
 	return (ast);
 }
 
@@ -139,9 +126,9 @@ void	print2D( ASTNode* node, int space )
 	
 	space += GLOBALSPACE;
 	print2D(node->right.get(), space);
-	std::cout << std::endl;
-	std::string	s(space - GLOBALSPACE, ' ');
-	std::cout << s << node->value << std::endl;
+	cout << endl;
+	string	s(space - GLOBALSPACE, ' ');
+	cout << s << node->value << endl;
 	print2D(node->left.get(), space);
 }
 

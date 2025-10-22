@@ -6,7 +6,7 @@
 /*   By: rrichard <rrichard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/15 10:13:03 by rrichard          #+#    #+#             */
-/*   Updated: 2025/10/19 14:35:20 by rrichard         ###   ########.fr       */
+/*   Updated: 2025/10/21 13:00:29 by rrichard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,11 +43,11 @@ struct ASTNode
 
 };
 
-std::unique_ptr<ASTNode>	parseFormula( std::vector<std::string>::iterator &it, std::vector<std::string>::iterator end );
-std::unique_ptr<ASTNode>	parseImplication( std::vector<std::string>::iterator &it, std::vector<std::string>::iterator end );
-std::unique_ptr<ASTNode>	parseDisjunction( std::vector<std::string>::iterator &it, std::vector<std::string>::iterator end );
-std::unique_ptr<ASTNode>	parseTerm( std::vector<std::string>::iterator &it, std::vector<std::string>::iterator end );
-std::unique_ptr<ASTNode>	parseFactor( std::vector<std::string>::iterator &it, std::vector<std::string>::iterator end );
-std::unique_ptr<ASTNode>	parsePrimary( std::vector<std::string>::iterator &it, std::vector<std::string>::iterator end );
+std::unique_ptr<ASTNode>	parseFormula( std::string::iterator &it, std::string::iterator end );
+std::unique_ptr<ASTNode>	parseImplication( std::string::iterator &it, std::string::iterator end );
+std::unique_ptr<ASTNode>	parseDisjunction( std::string::iterator &it, std::string::iterator end );
+std::unique_ptr<ASTNode>	parseTerm( std::string::iterator &it, std::string::iterator end );
+std::unique_ptr<ASTNode>	parseFactor( std::string::iterator &it, std::string::iterator end );
+std::unique_ptr<ASTNode>	parsePrimary( std::string::iterator &it, std::string::iterator end );
 
 #endif //AST_HPP

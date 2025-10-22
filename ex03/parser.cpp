@@ -6,7 +6,7 @@
 /*   By: rrichard <rrichard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/22 12:05:45 by rrichard          #+#    #+#             */
-/*   Updated: 2025/10/08 13:48:40 by rrichard         ###   ########.fr       */
+/*   Updated: 2025/10/21 10:48:56 by rrichard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,19 +15,18 @@
 #include <sstream>
 #include <string>
 #include <cstdlib>
-#include <stdio.h>
 
-bool	evaluate( char *str )
+bool	evaluate( std::string& str )
 {
 	std::stack<bool>	stack;
 
-	for (int i = 0; str[i] != '\0'; i++)
+	for (auto c : str)
 	{
-		if (str[i] == '0' || str[i] == '1')
-			stack.push(str[i] == '0' ? false : true);
+		if (c == '0' || c == '1')
+			stack.push(c == '0' ? false : true);
 		else
 		{
-			if (str[i] == '!')
+			if (c == '!')
 			{
 				bool operand = stack.top();
 				stack.pop();
@@ -39,15 +38,15 @@ bool	evaluate( char *str )
 				stack.pop();
 				bool operand2 = stack.top();
 				stack.pop();
-				if (str[i] == '&')
+				if (c == '&')
 					stack.push(operand1 && operand2);
-				else if (str[i] == '|')
+				else if (c == '|')
 					stack.push(operand1 || operand2);
-				else if (str[i] == '^')
+				else if (c == '^')
 					stack.push(operand1 ^ operand2);
-				else if (str[i] == '>')
+				else if (c == '>')
 					stack.push(!operand1 || operand2);
-				else if (str[i] == '=')
+				else if (c == '=')
 					stack.push(operand1 == operand2);
 				else
 					throw std::runtime_error("Error: operator not supported");
@@ -68,7 +67,8 @@ int	main( int argc, char *argv[] )
 	}
 	try
 	{
-		bool	result = evaluate(argv[1]);
+		std::string	input = argv[1];
+		bool	result = evaluate(input);
 		std::cout << "Result: " << result << std::endl;
 	}
 	catch(const std::exception& e)
