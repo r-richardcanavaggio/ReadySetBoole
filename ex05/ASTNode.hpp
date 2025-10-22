@@ -6,7 +6,7 @@
 /*   By: rrichard <rrichard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/21 16:50:47 by rrichard          #+#    #+#             */
-/*   Updated: 2025/10/22 13:42:46 by rrichard         ###   ########.fr       */
+/*   Updated: 2025/10/22 17:39:32 by rrichard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,20 +33,13 @@ enum class NodeType
 
 struct ASTNode
 {
-	NodeType					type;
-	std::string					value;
-	std::unique_ptr<ASTNode>	left, right;
+	NodeType			type;
+	string				value;
+	unique_ptr<ASTNode>	left, right;
 
 	ASTNode( NodeType, string, unique_ptr<ASTNode>, unique_ptr<ASTNode> );
-	ASTNode( const ASTNode& );
-	ASTNode& operator=( const ASTNode& );
-	~ASTNode();
 
-	unique_ptr<ASTNode> clone() const;
+	unique_ptr<ASTNode>	clone() const;
 };
-
-#define GLOBALSPACE 5
-
-unique_ptr<ASTNode>			eliminateImplications( unique_ptr<ASTNode> node );
 
 #endif

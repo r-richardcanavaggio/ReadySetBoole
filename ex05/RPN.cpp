@@ -6,17 +6,16 @@
 /*   By: rrichard <rrichard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/21 10:52:15 by rrichard          #+#    #+#             */
-/*   Updated: 2025/10/22 15:33:56 by rrichard         ###   ########.fr       */
+/*   Updated: 2025/10/22 17:41:16 by rrichard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "RPN.hpp"
 
-RPN::RPN( const string& input ) : formula(input), isInfix(false) {}
-RPN::~RPN() {}
-
-bool	RPN::evaluate()
+bool	evaluate( const string& formula )
 {
+	stack<bool>	_stack;
+
 	for (char c : formula)
 	{
 		if (c == '0' || c == '1')
@@ -55,7 +54,7 @@ bool	RPN::evaluate()
 	return (_stack.top());
 }
 
-void RPN::toInfix()
+string toInfix( const string& formula )
 {
 	stack<string>	s;
 
@@ -89,12 +88,10 @@ void RPN::toInfix()
 	}
 	if (s.size() != 1)
 		throw runtime_error("Error: wrong expression");
-	if (isInfix == false)
-		isInfix = true;
-	formula = s.top();
+	return(s.top());
 }
 
-unique_ptr<ASTNode>	RPN::parsePrimary( string::iterator &it, string::iterator end )
+unique_ptr<ASTNode>	parsePrimary( string::iterator &it, string::iterator end )
 {
 	if (it == end)
 		throw runtime_error("Unexpected end of input");
@@ -124,7 +121,7 @@ unique_ptr<ASTNode>	RPN::parsePrimary( string::iterator &it, string::iterator en
 		throw runtime_error("Unexpected token: " + string(1, *it));
 }
 
-unique_ptr<ASTNode>	RPN::parseFactor( string::iterator &it, string::iterator end )
+unique_ptr<ASTNode>	parseFactor( string::iterator &it, string::iterator end )
 {
 	if (it != end && *it == '!')
 	{
@@ -136,7 +133,7 @@ unique_ptr<ASTNode>	RPN::parseFactor( string::iterator &it, string::iterator end
 		return (parsePrimary(it, end));
 }
 
-unique_ptr<ASTNode>	RPN::parseTerm( string::iterator &it, string::iterator end )
+unique_ptr<ASTNode>	parseTerm( string::iterator &it, string::iterator end )
 {
 	auto	left = parseFactor(it, end);
 	while (it != end && *it == '&')
@@ -148,7 +145,7 @@ unique_ptr<ASTNode>	RPN::parseTerm( string::iterator &it, string::iterator end )
 	return (left);
 }
 
-unique_ptr<ASTNode>	RPN::parseDisjunction( string::iterator &it, string::iterator end )
+unique_ptr<ASTNode>	parseDisjunction( string::iterator &it, string::iterator end )
 {
 	auto left = parseTerm(it, end);
 	while (it != end && (*it == '^' || *it == '|'))
@@ -164,7 +161,7 @@ unique_ptr<ASTNode>	RPN::parseDisjunction( string::iterator &it, string::iterato
 	return (left);
 }
 
-unique_ptr<ASTNode>	RPN::parseImplication( string::iterator &it, string::iterator end )
+unique_ptr<ASTNode>	parseImplication( string::iterator &it, string::iterator end )
 {
 	auto	left = parseDisjunction(it, end);
 	while (it != end && *it == '>')
@@ -176,7 +173,7 @@ unique_ptr<ASTNode>	RPN::parseImplication( string::iterator &it, string::iterato
 	return (left);
 }
 
-unique_ptr<ASTNode>	RPN::parseFormula( string::iterator &it, string::iterator end )
+unique_ptr<ASTNode>	parseFormula( string::iterator &it, string::iterator end )
 {
 	auto	left = parseImplication(it, end);
 	while (it != end && *it == '=')
@@ -188,16 +185,19 @@ unique_ptr<ASTNode>	RPN::parseFormula( string::iterator &it, string::iterator en
 	return (left);
 }
 
-void	RPN::toAST()
-{
-	string	input = formula;
-	
+unique_ptr<ASTNode>	toAST( const string& formula )
+{	
+	string				input;
+	string::iterator	it;
+	unique_ptr<ASTNode>	ast;
+
+	input = formula;
 	input.erase(remove(input.begin(), input.end(), ' '), input.end());
-	string::iterator	it = input.begin();
+	it = input.begin();
 	ast = parseFormula(it, input.end());
-	
 	if (it != input.end())
 		throw runtime_error(string("Unexpected token at end of input: ") + string(1, *it));
+	return (ast);
 }
 
 unique_ptr<ASTNode>	eliminateImplications( unique_ptr<ASTNode> node )
@@ -244,7 +244,7 @@ unique_ptr<ASTNode>	eliminateImplications( unique_ptr<ASTNode> node )
 	return (node);
 }
 
-unique_ptr<ASTNode>	RPN::transformASTtoNNF( unique_ptr<ASTNode> node, bool neg )
+unique_ptr<ASTNode>	transformASTtoNNF( unique_ptr<ASTNode> node, bool neg )
 {
 	if (!node)
 		return nullptr;
@@ -281,7 +281,7 @@ unique_ptr<ASTNode>	RPN::transformASTtoNNF( unique_ptr<ASTNode> node, bool neg )
 	return (node);
 }
 
-void	RPN::print2D( const ASTNode* node, const string& prefix, bool isLeft, bool isRoot )
+void	print2D( const ASTNode* node, const string& prefix, bool isLeft, bool isRoot )
 {
 	if (!node)
 		return ;
@@ -298,36 +298,47 @@ void	RPN::print2D( const ASTNode* node, const string& prefix, bool isLeft, bool 
 		print2D(node->left.get(), prefix + (isRoot ? "" : (isLeft ? "    " : "│   ")), true, false);
 }
 
-void	RPN::printASTFormula()
+void	printASTFormula( const string& formula )
 {
-	if (isInfix == false)
-		toInfix();
-	if (!ast)
-		toAST();
+	string				infix;
+	unique_ptr<ASTNode>	ast;
+
+	infix = toInfix(formula);
+	ast = toAST(infix);
 	print2D(ast.get());
 }
 
-string	RPN::toNNF()
+void	printASTFormulaNNF( const string& formula )
 {
-	toAST();
+	string				infix;
+	unique_ptr<ASTNode>	ast;
+
+	infix = toInfix(formula);
+	ast = toAST(infix);
 	ast = eliminateImplications(std::move(ast));
 	ast = transformASTtoNNF(std::move(ast));
-	string	res;
-	toRPN(res);
-	return (res);
+	print2D(ast.get());
 }
 
-void	RPN::toRPN( string& res )
+string	negation_normal_form( const string& formula )
 {
-	computeToRpn(ast.get(), res);
+	unique_ptr<ASTNode>	ast;
+	string				infix;
+	string				nnf;
+
+	infix = toInfix(formula);
+	ast = toAST(infix);
+	ast = eliminateImplications(std::move(ast));
+	ast = transformASTtoNNF(std::move(ast));
+	computeToRpn(ast.get(), nnf);
+	return (nnf);
 }
 
-void	RPN::computeToRpn( ASTNode* node, string& str )
+void	computeToRpn( ASTNode* node, string& str )
 {
 	if (!node)
 		return ;
 	computeToRpn(node->left.get(), str);
 	computeToRpn(node->right.get(), str);
-
 	str += node->value;
 }
