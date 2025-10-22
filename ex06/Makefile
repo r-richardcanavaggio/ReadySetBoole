@@ -18,7 +18,7 @@ OBJS = $(SRCS:$(SRCS_PATH)%.cpp=$(OBJS_PATH)%.o)
 #                                   SRCS_FILES                                 #
 ################################################################################
 
-SRCS_FILES =	ex05.cpp \
+SRCS_FILES =	ex06.cpp \
 				RPN.cpp \
 				ASTNode.cpp \
 

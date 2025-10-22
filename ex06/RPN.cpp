@@ -6,7 +6,7 @@
 /*   By: rrichard <rrichard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/21 10:52:15 by rrichard          #+#    #+#             */
-/*   Updated: 2025/10/22 19:00:55 by rrichard         ###   ########.fr       */
+/*   Updated: 2025/10/22 20:27:35 by rrichard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -281,6 +281,48 @@ unique_ptr<ASTNode>	transformASTtoNNF( unique_ptr<ASTNode> node, bool neg )
 	return (node);
 }
 
+unique_ptr<ASTNode>	transformASTtoCNF( unique_ptr<ASTNode> node )
+{
+	if (!node)
+		return (nullptr);
+	if (node->type == NodeType::VARIABLE || (node->type == NodeType::NEGATION && node->left != nullptr && node->left->type == NodeType::VARIABLE))
+		return (node);
+	if (node->type == NodeType::CONJUNCTION)
+	{
+		node->left  = transformASTtoCNF(std::move(node->left));
+		node->right = transformASTtoCNF(std::move(node->right));
+		return (node);
+	}
+	if (node->type == NodeType::DISJUNCTION)
+	{
+		auto L = transformASTtoCNF(std::move(node->left));
+		auto R = transformASTtoCNF(std::move(node->right));
+		// (A AND B) OR C -> (A OR C) AND (B OR C)
+		if (L->type == NodeType::CONJUNCTION && R->type != NodeType::CONJUNCTION)
+		{
+			auto	new_left_or  = make_unique<ASTNode>(NodeType::DISJUNCTION, "|", std::move(L->left), R->clone());
+			auto	new_right_or = make_unique<ASTNode>(NodeType::DISJUNCTION, "|", std::move(L->right), std::move(R));
+			return (make_unique<ASTNode>(NodeType::CONJUNCTION, "&", std::move(new_left_or), std::move(new_right_or)));
+		}
+		// A OR (B AND C) -> (A OR B) AND (A OR C)
+		if (R->type == NodeType::CONJUNCTION && L->type != NodeType::CONJUNCTION)
+		{
+			auto	new_left_or  = make_unique<ASTNode>(NodeType::DISJUNCTION, "|", L->clone(), std::move(R->left));
+			auto	new_right_or = make_unique<ASTNode>(NodeType::DISJUNCTION, "|", std::move(L), std::move(R->right));
+			return (make_unique<ASTNode>(NodeType::CONJUNCTION, "&", std::move(new_left_or), std::move(new_right_or)));
+		}
+		// (A AND B) OR (C AND D) -> (A OR C) AND (A OR D) AND (B OR C) AND (B OR D)
+		if (R->type == NodeType::CONJUNCTION && L->type == NodeType::CONJUNCTION)
+		{
+
+		}
+		node->left  = std::move(L);
+		node->right = std::move(R);
+		return (node);
+	}
+	return (node);
+}
+
 void	print2D( const ASTNode* node, const string& prefix, bool isLeft, bool isRoot )
 {
 	if (!node)
@@ -343,7 +385,9 @@ string	conjunctive_normal_form( const string& formula )
 	infix = toInfix(formula);
 	ast = toAST(infix);
 	ast = eliminateImplications(std::move(ast));
-	
+	ast = transformASTtoCNF(std::move(ast));
+	print2D(ast.get());
+	return (cnf);
 }
 
 void	computeToRpn( ASTNode* node, string& str )
