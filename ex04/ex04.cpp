@@ -6,7 +6,7 @@
 /*   By: rrichard <rrichard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/19 15:03:28 by rrichard          #+#    #+#             */
-/*   Updated: 2025/10/24 14:57:08 by rrichard         ###   ########.fr       */
+/*   Updated: 2025/10/24 17:33:11 by rrichard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,6 +38,8 @@ bool	evaluate( const string& formula )
 			}
 			else
 			{
+				if (stack.size() < 2)
+					throw runtime_error("Error: not enough operands for operator.");
 				bool operand1 = stack.top();
 				stack.pop();
 				bool operand2 = stack.top();
