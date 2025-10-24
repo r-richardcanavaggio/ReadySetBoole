@@ -6,7 +6,7 @@
 /*   By: rrichard <rrichard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/21 10:48:18 by rrichard          #+#    #+#             */
-/*   Updated: 2025/10/22 20:15:52 by rrichard         ###   ########.fr       */
+/*   Updated: 2025/10/24 13:02:37 by rrichard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,7 @@ string				toInfix( const string& );
 bool				evaluate( const string& );
 void				printASTFormula( const string& );
 void				printASTFormulaNNF( const string& );
+void				printASTFormulaCNF( const string& );
 string				negation_normal_form( const string& );
 string				conjunctive_normal_form( const string& );
 

@@ -21,6 +21,7 @@ OBJS = $(SRCS:$(SRCS_PATH)%.cpp=$(OBJS_PATH)%.o)
 SRCS_FILES =	ex06.cpp \
 				RPN.cpp \
 				ASTNode.cpp \
+				CNF.cpp \
 
 ################################################################################
 #                                    COlORS                                    #
