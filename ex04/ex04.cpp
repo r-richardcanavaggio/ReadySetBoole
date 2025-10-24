@@ -6,7 +6,7 @@
 /*   By: rrichard <rrichard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/19 15:03:28 by rrichard          #+#    #+#             */
-/*   Updated: 2025/10/19 22:07:55 by rrichard         ###   ########.fr       */
+/*   Updated: 2025/10/24 14:57:08 by rrichard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,7 +76,7 @@ vector<vector<int>>	createTT( unsigned int n )
 	return (output);
 }
 
-void	printTT( vector<vector<int>>& table, string& formula, vector<char>& vars )
+void	printTT( vector<vector<int>>& table, string formula, vector<char>& vars )
 {
 	size_t			n = vars.size();
 	unsigned int	cols = 1u << n;
@@ -120,20 +120,30 @@ vector<char> buildVarList( const string& input )
 			}
 		}
 	}
+	if (res.size() < 2)
+		throw runtime_error("Error: not enough variables");
 	return (res);
+}
+
+void	print_truth_table( const string& input )
+{
+	vector<char>		vars;
+	vector<vector<int>>	table;
+
+	vars = buildVarList(input);
+	table = createTT(vars.size());
+	printTT(table, input, vars);
 }
 
 int main (void)
 {
-	string input;
+	string	input;
 	cout << "Enter propositional RPN formula: ";
 	getline(cin, input);
 
 	try
 	{
-		auto vars = buildVarList(input);
-		auto table = createTT(vars.size());
-		printTT(table, input, vars);
+		print_truth_table(input);
 	}
 	catch (const exception &e)
 	{
