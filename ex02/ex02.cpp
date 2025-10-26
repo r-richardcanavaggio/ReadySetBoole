@@ -6,12 +6,16 @@
 /*   By: rrichard <rrichard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/20 20:38:21 by rrichard          #+#    #+#             */
-/*   Updated: 2025/09/20 20:39:08 by rrichard         ###   ########.fr       */
+/*   Updated: 2025/10/26 18:05:12 by rrichard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <iostream>
-#include "GrayCode.h"
+
+uint32_t	gray_code( uint32_t n )
+{
+	return ((n ^ (n << 1)) >> 1);
+}
 
 int	main( int argc, char **argv )
 {
@@ -22,8 +26,11 @@ int	main( int argc, char **argv )
 	}
 	try
 	{
-		int a = std::stoi(argv[1]);
-		std::cout << GrayCode(a) << std::endl;
+		long long a = std::stoll(argv[1]);
+		if (a < 0)
+			return (std::cerr << "Argument must be positive.", 1);
+		a = static_cast<uint32_t>(a);
+		std::cout << gray_code(a) << std::endl;
 	}
 	catch (const std::exception &e)
 	{

@@ -6,7 +6,7 @@
 /*   By: rrichard <rrichard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/12 15:09:29 by rrichard          #+#    #+#             */
-/*   Updated: 2025/10/21 10:11:22 by rrichard         ###   ########.fr       */
+/*   Updated: 2025/10/26 18:14:55 by rrichard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -119,17 +119,21 @@ std::unique_ptr<ASTNode>	parse( string& input )
 	return (ast);
 }
 
-int GLOBALSPACE = 5;
-void	print2D( ASTNode* node, int space )
+void	print2D( const ASTNode* node, const string& prefix = "", bool isLeft = false, bool isRoot = true )
 {
-	if (!node)	return ;
-	
-	space += GLOBALSPACE;
-	print2D(node->right.get(), space);
-	cout << endl;
-	string	s(space - GLOBALSPACE, ' ');
-	cout << s << node->value << endl;
-	print2D(node->left.get(), space);
+	if (!node)
+		return ;
+
+	if (node->right)
+		print2D(node->right.get(), prefix + (isRoot ? "" : (isLeft ? "│   " : "    ")), false, false);
+
+	cout << prefix;
+	if (!isRoot)
+		cout << (isLeft ? "└── " : "┌── ");
+	cout << node->value << endl;
+
+	if (node->left)
+		print2D(node->left.get(), prefix + (isRoot ? "" : (isLeft ? "    " : "│   ")), true, false);
 }
 
 int	main( void )
@@ -160,12 +164,12 @@ int	main( void )
 			std::unique_ptr<ASTNode> N = std::make_unique<ASTNode>(NodeType::VARIABLE, "N", std::move(G), std::move(M));
 	
 			std::unique_ptr<ASTNode> root = std::make_unique<ASTNode>(NodeType::VARIABLE, "O", std::move(E), std::move(N));
-			print2D(root.get(), GLOBALSPACE);
+			print2D(root.get());
 		}
 		else
 		{
 			auto	ast = parse(input);
-			print2D(ast.get(), GLOBALSPACE);
+			print2D(ast.get());
 		}
 
 	}

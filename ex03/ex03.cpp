@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   parser.cpp                                         :+:      :+:    :+:   */
+/*   ex03.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: rrichard <rrichard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/22 12:05:45 by rrichard          #+#    #+#             */
-/*   Updated: 2025/10/21 10:48:56 by rrichard         ###   ########.fr       */
+/*   Updated: 2025/10/26 18:20:53 by rrichard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 #include <string>
 #include <cstdlib>
 
-bool	evaluate( std::string& str )
+bool	eval_formula( std::string& str )
 {
 	std::stack<bool>	stack;
 
@@ -28,12 +28,16 @@ bool	evaluate( std::string& str )
 		{
 			if (c == '!')
 			{
+				if (stack.empty())
+					throw std::runtime_error("Error: missing operand for '!");
 				bool operand = stack.top();
 				stack.pop();
 				stack.push(!operand);
 			}
 			else
 			{
+				if (stack.size() < 2)
+					throw std::runtime_error("Error: missing operand for binary operator.");
 				bool operand1 = stack.top();
 				stack.pop();
 				bool operand2 = stack.top();
@@ -68,8 +72,7 @@ int	main( int argc, char *argv[] )
 	try
 	{
 		std::string	input = argv[1];
-		bool	result = evaluate(input);
-		std::cout << "Result: " << result << std::endl;
+		std::cout << "Result: " << eval_formula(input) << std::endl;
 	}
 	catch(const std::exception& e)
 	{

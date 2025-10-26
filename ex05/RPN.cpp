@@ -6,7 +6,7 @@
 /*   By: rrichard <rrichard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/21 10:52:15 by rrichard          #+#    #+#             */
-/*   Updated: 2025/10/22 18:46:49 by rrichard         ###   ########.fr       */
+/*   Updated: 2025/10/26 18:19:54 by rrichard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,12 +24,16 @@ bool	evaluate( const string& formula )
 		{
 			if (c == '!')
 			{
+				if (_stack.empty())
+					throw runtime_error("Error: missing operand for '!");
 				bool operand = _stack.top();
 				_stack.pop();
 				_stack.push(!operand);
 			}
 			else
 			{
+				if (_stack.size() < 2)
+					throw runtime_error("Error: missing operand for binary operator");
 				bool operand1 = _stack.top();
 				_stack.pop();
 				bool operand2 = _stack.top();

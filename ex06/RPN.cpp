@@ -6,7 +6,7 @@
 /*   By: rrichard <rrichard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/21 10:52:15 by rrichard          #+#    #+#             */
-/*   Updated: 2025/10/24 13:01:13 by rrichard         ###   ########.fr       */
+/*   Updated: 2025/10/26 18:18:59 by rrichard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,8 @@ bool	evaluate( const string& formula )
 			}
 			else
 			{
+				if (_stack.size() < 2)
+					throw runtime_error("Error: wrong expression");
 				bool operand1 = _stack.top();
 				_stack.pop();
 				bool operand2 = _stack.top();

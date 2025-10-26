@@ -2,10 +2,10 @@
 #                                   VARIABLES                                  #
 ################################################################################
 
-NAME = multiplier
+NAME = ex01
 CC = c++
 
-CFLAGS = -Werror -Wall -Wextra -std=c++17
+CFLAGS = -Werror -Wall -Wextra -std=c++11
 
 SRCS_PATH = ./
 OBJS_PATH = .obj/

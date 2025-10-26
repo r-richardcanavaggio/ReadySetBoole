@@ -2,10 +2,10 @@
 #                                   VARIABLES                                  #
 ################################################################################
 
-NAME = Parser
+NAME = ex03
 CC = c++
 
-CFLAGS = -Werror -Wall -Wextra -std=c++17
+CFLAGS = -Werror -Wall -Wextra -std=c++11
 
 SRCS_PATH = ./
 OBJS_PATH = .obj/
@@ -18,8 +18,8 @@ OBJS = $(SRCS:$(SRCS_PATH)%.cpp=$(OBJS_PATH)%.o)
 #                                   SRCS_FILES                                 #
 ################################################################################
 
-SRCS_FILES =	AST.cpp \
-				#parser.cpp
+SRCS_FILES =	ex03.cpp \
+				# AST.cpp \
 
 
 ################################################################################

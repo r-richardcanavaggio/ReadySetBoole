@@ -6,7 +6,7 @@
 /*   By: rrichard <rrichard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/19 15:03:28 by rrichard          #+#    #+#             */
-/*   Updated: 2025/10/24 17:33:11 by rrichard         ###   ########.fr       */
+/*   Updated: 2025/10/26 18:22:19 by rrichard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@
 
 using namespace std;
 
-bool	evaluate( const string& formula )
+bool	eval_formula( const string& formula )
 {
 	stack<bool>	stack;
 
@@ -32,6 +32,8 @@ bool	evaluate( const string& formula )
 		{
 			if (c == '!')
 			{
+				if (stack.empty())
+					throw std::runtime_error("Error: missing operand for '!");
 				bool operand = stack.top();
 				stack.pop();
 				stack.push(!operand);
@@ -101,7 +103,7 @@ void	printTT( vector<vector<int>>& table, string formula, vector<char>& vars )
 			replace(expr.begin(), expr.end(), var, val);
 			cout << "| " << table[y][x] << " ";
 		}
-		cout << "| " << (evaluate(expr) ? '1' : '0') << " |" << endl;
+		cout << "| " << (eval_formula(expr) ? '1' : '0') << " |" << endl;
 	}
 }
 
