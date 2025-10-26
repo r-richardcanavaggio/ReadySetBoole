@@ -18,9 +18,7 @@ OBJS = $(SRCS:$(SRCS_PATH)%.cpp=$(OBJS_PATH)%.o)
 #                                   SRCS_FILES                                 #
 ################################################################################
 
-SRCS_FILES =	multiplier.cpp \
-				adder.cpp \
-				main.cpp \
+SRCS_FILES =	ex01.cpp \
 
 ################################################################################
 #                                    COlORS                                    #
