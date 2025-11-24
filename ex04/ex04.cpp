@@ -6,25 +6,20 @@
 /*   By: rrichard <rrichard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/19 15:03:28 by rrichard          #+#    #+#             */
-/*   Updated: 2025/10/26 18:22:19 by rrichard         ###   ########.fr       */
+/*   Updated: 2025/11/24 15:37:03 by rrichard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <stack>
 #include <iostream>
-#include <sstream>
 #include <string>
-#include <cstdlib>
-#include <stdio.h>
-#include <map>
+#include <vector>
 
-using namespace std;
-
-bool	eval_formula( const string& formula )
+bool	eval_formula( const std::string& formula )
 {
-	stack<bool>	stack;
+	std::stack<bool>	stack;
 
-	for (char c : formula)
+	for (const auto& c : formula)
 	{
 		if (c == '0' || c == '1')
 			stack.push(c == '0' ? false : true);
@@ -41,7 +36,7 @@ bool	eval_formula( const string& formula )
 			else
 			{
 				if (stack.size() < 2)
-					throw runtime_error("Error: not enough operands for operator.");
+					throw std::runtime_error("Error: not enough operands for operator.");
 				bool operand1 = stack.top();
 				stack.pop();
 				bool operand2 = stack.top();
@@ -57,101 +52,83 @@ bool	eval_formula( const string& formula )
 				else if (c == '=')
 					stack.push(operand1 == operand2);
 				else
-					throw runtime_error("Error: operator not supported");
+					throw std::runtime_error("Error: operator not supported");
 			}
 		}
 	}
 	if (stack.size() != 1)
-		throw runtime_error("Error: wrong expression.");
+		throw std::runtime_error("Error: wrong expression.");
 	return (stack.top());
 }
 
-vector<vector<int>>	createTT( unsigned int n )
+std::vector<char> buildVarList( const std::string& input )
 {
-	vector<vector<int>>	output(n, vector<int>(1 << n));
-	unsigned int		cols = 1U << n;
-	unsigned int		num = 1U << (n - 1);
+	std::vector<char>	res;
+	bool				seen[26] = {false};
 
-	for (unsigned int col = 0; col < n; col++, num >>= 1U)
-	{
-		for (unsigned int row = num; row < cols; row += (num * 2U))
-			fill_n(&output[col][row], num, 1);
-	}
-	return (output);
-}
-
-void	printTT( vector<vector<int>>& table, string formula, vector<char>& vars )
-{
-	size_t			n = vars.size();
-	unsigned int	cols = 1u << n;
-
-	for (char c : vars)
-	{
-		cout << "| " << c << " ";
-	}
-	cout << "| = |" << endl;
-	for (unsigned int i = 0; i < n + 1; i++)
-		cout << "|---";
-	cout << "|" << endl;
-	for (unsigned int x = 0; x < cols; x++)
-	{
-		string expr = formula;
-		for (unsigned int y = 0; y < n; y++)
-		{
-			char var = vars[y];
-			char val = static_cast<char>('0' + table[y][x]);
-			replace(expr.begin(), expr.end(), var, val);
-			cout << "| " << table[y][x] << " ";
-		}
-		cout << "| " << (eval_formula(expr) ? '1' : '0') << " |" << endl;
-	}
-}
-
-vector<char> buildVarList( const string& input )
-{
-	vector<char>				res;
-	unordered_map<char, int>	outIndex;
-
-	for (char c : input)
+	for (const auto& c : input)
 	{
 		if (c >= 'A' && c <= 'Z')
 		{
-			if (!outIndex.count(c))
+			int	index = c - 'A';
+		
+			if (!seen[index])
 			{
-				int idx = static_cast<int>(res.size());
+				seen[index] = true;
 				res.push_back(c);
-				outIndex[c] = idx;
 			}
 		}
 	}
 	if (res.size() < 2)
-		throw runtime_error("Error: not enough variables");
+		throw std::runtime_error("Error: not enough variables");
 	return (res);
 }
 
-void	print_truth_table( const string& input )
+void	print_truth_table( const std::string& input )
 {
-	vector<char>		vars;
-	vector<vector<int>>	table;
+	std::vector<char>	vars = buildVarList(input);
+	size_t				n = vars.size();
+	size_t				limit = 1U << n;
 
-	vars = buildVarList(input);
-	table = createTT(vars.size());
-	printTT(table, input, vars);
+	for (auto& c : vars)
+		std::cout << "| " << c << " ";
+	std::cout << "| = |" << std::endl;
+	for (size_t i = 0; i < n + 1; i++)
+		std::cout << "|---";
+	std::cout << "|" << std::endl;
+
+	for (size_t i = 0; i < limit; i++)
+	{
+		std::string expr = input;
+		for (size_t j = 0; j < n; j++)
+		{
+			bool	isTrue = (i >> (n - 1 - j)) & 1U;
+			char var = vars[j];
+			char val = isTrue ? '1' : '0';
+			for (size_t k = 0; k < expr.length(); k++)
+			{
+				if (expr[k] == var)
+					expr[k] = val;
+			}
+			std::cout << "| " << (isTrue ? 1 : 0) << " ";
+		}
+		std::cout << "| " << (eval_formula(expr) ? '1' : '0') << " |" << std::endl;
+	}
 }
 
 int main (void)
 {
-	string	input;
-	cout << "Enter propositional RPN formula: ";
-	getline(cin, input);
-
 	try
 	{
+		std::string	input;
+
+		std::cout << "Enter propositional RPN formula: ";
+		getline(std::cin, input);
 		print_truth_table(input);
 	}
-	catch (const exception &e)
+	catch (const std::exception &e)
 	{
-		cerr << e.what() << endl;
+		std::cerr << e.what() << std::endl;
 	}
 	return (0);
 }
