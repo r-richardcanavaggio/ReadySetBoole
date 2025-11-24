@@ -6,7 +6,7 @@
 /*   By: rrichard <rrichard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/22 12:05:45 by rrichard          #+#    #+#             */
-/*   Updated: 2025/10/26 18:20:53 by rrichard         ###   ########.fr       */
+/*   Updated: 2025/11/24 14:31:28 by rrichard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,11 +16,11 @@
 #include <string>
 #include <cstdlib>
 
-bool	eval_formula( std::string& str )
+bool	eval_formula( const std::string& str )
 {
 	std::stack<bool>	stack;
 
-	for (auto c : str)
+	for (const auto& c : str)
 	{
 		if (c == '0' || c == '1')
 			stack.push(c == '0' ? false : true);
@@ -38,9 +38,9 @@ bool	eval_formula( std::string& str )
 			{
 				if (stack.size() < 2)
 					throw std::runtime_error("Error: missing operand for binary operator.");
-				bool operand1 = stack.top();
-				stack.pop();
 				bool operand2 = stack.top();
+				stack.pop();
+				bool operand1 = stack.top();
 				stack.pop();
 				if (c == '&')
 					stack.push(operand1 && operand2);
