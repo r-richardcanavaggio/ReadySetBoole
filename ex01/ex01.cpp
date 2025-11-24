@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.cpp                                           :+:      :+:    :+:   */
+/*   ex01.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: rrichard <rrichard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/20 20:07:28 by rrichard          #+#    #+#             */
-/*   Updated: 2025/10/26 18:00:52 by rrichard         ###   ########.fr       */
+/*   Updated: 2025/11/24 13:44:43 by rrichard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,11 +29,16 @@ uint32_t	adder( uint32_t a, uint32_t b )
 
 uint32_t	multiplier( uint32_t a, uint32_t b )
 {
-	uint32_t sum = 0;
+	uint32_t res = 0;
 
-	for (uint32_t i = 0; i < b; i++)
-		sum = adder(sum, a);
-	return (sum);
+	while (b > 0)
+	{
+		if (b & 1)
+			res = adder(res, a);
+		a = a << 1;
+		b = b >> 1;
+	}
+	return (res);
 }
 
 int	main( int argc, char **argv )
