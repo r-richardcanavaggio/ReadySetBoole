@@ -6,30 +6,31 @@
 /*   By: rrichard <rrichard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/20 18:15:49 by rrichard          #+#    #+#             */
-/*   Updated: 2025/10/22 17:36:25 by rrichard         ###   ########.fr       */
+/*   Updated: 2025/11/24 16:18:19 by rrichard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "AST.hpp"
 #include "RPN.hpp"
 
 int main( int argc, char *argv[] )
 {
-	string	expr;
-	string	nnf;
+	std::string	expr;
+	std::string	nnf;
 
 	if (argc != 2)
-		return (cerr << "Wrong number of arguments" << endl, 1);
+		return (std::cerr << "Wrong number of arguments" << std::endl, 1);
 	try 
 	{
 		expr = argv[1];
 		printASTFormula(expr);
-		cout << "----------" << endl;
+		std::cout << "----------" << std::endl;
 		nnf = negation_normal_form(expr);
 		printASTFormulaNNF(expr);
-		cout << nnf << endl;
+		std::cout << nnf << std::endl;
 	}
 	catch(const std::exception& e)
 	{
-		cerr << e.what() << endl;
+		std::cerr << e.what() << std::endl;
 	}
 }

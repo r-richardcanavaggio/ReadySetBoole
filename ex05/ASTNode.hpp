@@ -6,7 +6,7 @@
 /*   By: rrichard <rrichard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/21 16:50:47 by rrichard          #+#    #+#             */
-/*   Updated: 2025/10/22 17:39:32 by rrichard         ###   ########.fr       */
+/*   Updated: 2025/11/24 16:14:21 by rrichard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,8 +15,6 @@
 
 #include <string>
 #include <memory>
-
-using namespace std;
 
 enum class NodeType
 {
@@ -33,13 +31,13 @@ enum class NodeType
 
 struct ASTNode
 {
-	NodeType			type;
-	string				value;
-	unique_ptr<ASTNode>	left, right;
+	NodeType					type;
+	std::string					value;
+	std::unique_ptr<ASTNode>	left, right;
 
-	ASTNode( NodeType, string, unique_ptr<ASTNode>, unique_ptr<ASTNode> );
+	ASTNode( NodeType, std::string, std::unique_ptr<ASTNode>, std::unique_ptr<ASTNode> );
 
-	unique_ptr<ASTNode>	clone() const;
+	std::unique_ptr<ASTNode>	clone() const;
 };
 
 #endif

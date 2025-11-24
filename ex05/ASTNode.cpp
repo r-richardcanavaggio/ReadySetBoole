@@ -6,20 +6,20 @@
 /*   By: rrichard <rrichard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/21 16:53:44 by rrichard          #+#    #+#             */
-/*   Updated: 2025/10/22 17:40:25 by rrichard         ###   ########.fr       */
+/*   Updated: 2025/11/24 16:22:28 by rrichard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ASTNode.hpp"
 
-ASTNode::ASTNode( NodeType _type, string _value, std::unique_ptr<ASTNode> _left = nullptr, unique_ptr<ASTNode> _right = nullptr ) 
+ASTNode::ASTNode( NodeType _type, std::string _value, std::unique_ptr<ASTNode> _left = nullptr, std::unique_ptr<ASTNode> _right = nullptr ) 
 			: type(_type), value(_value), left(std::move(_left)), right(std::move(_right)) {}
 
-unique_ptr<ASTNode>	ASTNode::clone() const
+std::unique_ptr<ASTNode>	ASTNode::clone() const
 {
-	unique_ptr<ASTNode> node;
+	std::unique_ptr<ASTNode> node;
 
-	node = make_unique<ASTNode>(type, value, nullptr, nullptr);
+	node = std::make_unique<ASTNode>(type, value, nullptr, nullptr);
 	if (left)
 		node->left = left->clone();
 	if (right)
