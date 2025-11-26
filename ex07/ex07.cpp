@@ -6,22 +6,19 @@
 /*   By: rrichard <rrichard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/20 18:15:49 by rrichard          #+#    #+#             */
-/*   Updated: 2025/10/24 17:34:19 by rrichard         ###   ########.fr       */
+/*   Updated: 2025/11/26 15:23:35 by rrichard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-// #include "RPN.hpp"
 #include <vector>
 #include <iostream>
 #include <string>
 
-using namespace std;
-
-bool	evaluate( const string& formula )
+bool	evaluate( const std::string& formula )
 {
-	stack<bool>	_stack;
+	std::stack<bool>	_stack;
 
-	for (char c : formula)
+	for (const auto& c : formula)
 	{
 		if (c == '0' || c == '1')
 			_stack.push(c == '0' ? false : true);
@@ -29,6 +26,8 @@ bool	evaluate( const string& formula )
 		{
 			if (c == '!')
 			{
+				if (_stack.empty())
+					throw std::runtime_error("Error: missing operand for '!");
 				bool operand = _stack.top();
 				_stack.pop();
 				_stack.push(!operand);
@@ -36,7 +35,7 @@ bool	evaluate( const string& formula )
 			else
 			{
 				if (_stack.size() < 2)
-					throw runtime_error("Error: wrong expression");
+					throw std::runtime_error("Error: missing operand for binary operator");
 				bool operand1 = _stack.top();
 				_stack.pop();
 				bool operand2 = _stack.top();
@@ -52,57 +51,46 @@ bool	evaluate( const string& formula )
 				else if (c == '=')
 					_stack.push(operand1 == operand2);
 				else
-					throw runtime_error("Error: operator not supported");
-
+					throw std::runtime_error("Error: operator not supported");
 			}
 		}
 	}
 	if (_stack.size() != 1)
-		throw runtime_error("Error: wrong expression.");
+		throw std::runtime_error("Error: wrong expression.");
 	return (_stack.top());
 }
 
-vector<vector<int>>	createTT( unsigned int n )
+std::vector<char> buildVarList( const std::string& input )
 {
-	vector<vector<int>>	output(n, vector<int>(1 << n));
-	unsigned int		cols = 1U << n;
-	unsigned int		num = 1U << (n - 1);
+	std::vector<char>	res;
 
-	for (unsigned int col = 0; col < n; col++, num >>= 1U)
-	{
-		for (unsigned int row = num; row < cols; row += (num * 2U))
-			fill_n(&output[col][row], num, 1);
-	}
-	return (output);
-}
-
-vector<char> buildVarList( const string& input )
-{
-	vector<char>				res;
-
-	for (char c : input)
+	for (const auto& c : input)
 		if (c >= 'A' && c <= 'Z')
 			res.push_back(c);
 	if (res.size() < 2)
-		throw runtime_error("Error: not enough variables");
+		throw std::runtime_error("Error: not enough variables");
 	return (res);
 }
 
-bool	sat( const string& formula )
+bool	sat( const std::string& formula )
 {
-	vector<char>		vars = buildVarList(formula);
-	vector<vector<int>>	table = createTT(vars.size());
+	std::vector<char>	vars = buildVarList(formula);
 	size_t				n = vars.size();
-	unsigned int		cols = 1u << n;
+	size_t				limit = 1U << n;
 
-	for (unsigned int x = 0; x < cols; x++)
+	for (size_t i = 0; i < limit; i++)
 	{
-		string expr = formula;
-		for (unsigned int y = 0; y < n; y++)
+		std::string expr = formula;
+		for (size_t j = 0; j < n; j++)
 		{
-			char var = vars[y];
-			char val = static_cast<char>('0' + table[y][x]);
-			replace(expr.begin(), expr.end(), var, val);
+			bool	isTrue = (i >> (n - 1 - j)) & 1U;
+			char	var = vars[j];
+			char	val = isTrue ? '1' : '0';
+			for (size_t k = 0; k < expr.length(); k++)
+			{
+				if (expr[k] == var)
+					expr[k] = val;
+			}
 		}
 		if (evaluate(expr) == true)
 			return (true);
@@ -113,15 +101,15 @@ bool	sat( const string& formula )
 int main( int argc, char *argv[] )
 {
 	if (argc != 2)
-		return (cerr << "Wrong number of arguments" << endl, 1);
+		return (std::cerr << "Wrong number of arguments" << std::endl, 1);
 	try 
 	{
-		string input = argv[1];
-		cout << boolalpha << sat(input) << endl;
+		std::string input = argv[1];
+		std::cout << std::boolalpha << sat(input) << std::endl;
 	}
 	catch(const std::exception& e)
 	{
-		cerr << e.what() << endl;
+		std::cerr << e.what() << std::endl;
 	}
 	return (0);
 }
