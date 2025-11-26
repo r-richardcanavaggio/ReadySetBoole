@@ -5,7 +5,7 @@
 NAME = ex06
 CC = c++
 
-CFLAGS = -Werror -Wall -Wextra -std=c++11
+CFLAGS = -Werror -Wall -Wextra -std=c++14
 
 SRCS_PATH = ./
 OBJS_PATH = .obj/
@@ -20,8 +20,10 @@ OBJS = $(SRCS:$(SRCS_PATH)%.cpp=$(OBJS_PATH)%.o)
 
 SRCS_FILES =	ex06.cpp \
 				RPN.cpp \
-				ASTNode.cpp \
 				CNF.cpp \
+				AST.cpp \
+				ASTHelper.cpp \
+				ASTPrint.cpp \
 
 ################################################################################
 #                                    COlORS                                    #

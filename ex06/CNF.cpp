@@ -6,23 +6,24 @@
 /*   By: rrichard <rrichard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/24 12:59:04 by rrichard          #+#    #+#             */
-/*   Updated: 2025/10/24 13:01:35 by rrichard         ###   ########.fr       */
+/*   Updated: 2025/11/26 14:54:18 by rrichard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "RPN.hpp"
+#include "AST.hpp"
 
-vector<unique_ptr<ASTNode>>	flattenAnd( unique_ptr<ASTNode> node )
+std::vector<std::unique_ptr<ASTNode>>	flattenAnd( std::unique_ptr<ASTNode> node )
 {
-	vector<unique_ptr<ASTNode>>	clauses;
+	std::vector<std::unique_ptr<ASTNode>>	clauses;
 	
 	if (!node)
 		return (clauses);
 
 	if (node->type == NodeType::CONJUNCTION)
 	{
-		vector<unique_ptr<ASTNode>>	left_clauses  = flattenAnd(std::move(node->left));	
-		vector<unique_ptr<ASTNode>>	right_clauses = flattenAnd(std::move(node->right));
+		std::vector<std::unique_ptr<ASTNode>>	left_clauses  = flattenAnd(std::move(node->left));	
+		std::vector<std::unique_ptr<ASTNode>>	right_clauses = flattenAnd(std::move(node->right));
 		std::move(left_clauses.begin(), left_clauses.end(), back_inserter(clauses));
 		std::move(right_clauses.begin(), right_clauses.end(), back_inserter(clauses));
 	}
@@ -31,9 +32,9 @@ vector<unique_ptr<ASTNode>>	flattenAnd( unique_ptr<ASTNode> node )
 	return (clauses);
 }
 
-vector<unique_ptr<ASTNode>>	flattenOr( unique_ptr<ASTNode> node )
+std::vector<std::unique_ptr<ASTNode>>	flattenOr( std::unique_ptr<ASTNode> node )
 {
-	vector<unique_ptr<ASTNode>>	v;
+	std::vector<std::unique_ptr<ASTNode>>	v;
 
 	if (!node)
 		return (v);
@@ -49,37 +50,37 @@ vector<unique_ptr<ASTNode>>	flattenOr( unique_ptr<ASTNode> node )
 	return (v);
 }
 
-unique_ptr<ASTNode>	buildOrRight( vector<unique_ptr<ASTNode>>& v )
+std::unique_ptr<ASTNode>	buildOrRight( std::vector<std::unique_ptr<ASTNode>>& v )
 {
 	if (v.empty())
 		return (nullptr);
-	unique_ptr<ASTNode>	root = std::move(v.back());
+	std::unique_ptr<ASTNode>	root = std::move(v.back());
 	v.pop_back();
 	while (!v.empty())
 	{
-		unique_ptr<ASTNode> left = std::move(v.back());
+		std::unique_ptr<ASTNode> left = std::move(v.back());
 		v.pop_back();
-		root = make_unique<ASTNode>(NodeType::DISJUNCTION, "|", std::move(left), std::move(root));
+		root = std::make_unique<ASTNode>(NodeType::DISJUNCTION, "|", std::move(left), std::move(root));
 	}
 	return (root);
 }
 
-unique_ptr<ASTNode>	buildAndRight( vector<unique_ptr<ASTNode>>& v )
+std::unique_ptr<ASTNode>	buildAndRight( std::vector<std::unique_ptr<ASTNode>>& v )
 {
 	if (v.empty())
 		return (nullptr);
-	unique_ptr<ASTNode>	root = std::move(v.back());
+	std::unique_ptr<ASTNode>	root = std::move(v.back());
 	v.pop_back();
 	while (!v.empty())
 	{
-		unique_ptr<ASTNode> left = std::move(v.back());
+		std::unique_ptr<ASTNode> left = std::move(v.back());
 		v.pop_back();
-		root = make_unique<ASTNode>(NodeType::CONJUNCTION, "&", std::move(left), std::move(root));
+		root = std::make_unique<ASTNode>(NodeType::CONJUNCTION, "&", std::move(left), std::move(root));
 	}
 	return (root);
 }
 
-unique_ptr<ASTNode>	transformASTtoCNF( unique_ptr<ASTNode> node )
+std::unique_ptr<ASTNode>	transformASTtoCNF( std::unique_ptr<ASTNode> node )
 {
 	if (!node)
 		return (nullptr);
@@ -100,9 +101,9 @@ unique_ptr<ASTNode>	transformASTtoCNF( unique_ptr<ASTNode> node )
 		auto L = transformASTtoCNF(std::move(node->left));
 		auto R = transformASTtoCNF(std::move(node->right));
 
-		vector<unique_ptr<ASTNode>>	leftClauses  = flattenAnd(std::move(L));
-		vector<unique_ptr<ASTNode>>	rightClauses = flattenAnd(std::move(R));
-		vector<unique_ptr<ASTNode>>	newClauses;
+		std::vector<std::unique_ptr<ASTNode>>	leftClauses  = flattenAnd(std::move(L));
+		std::vector<std::unique_ptr<ASTNode>>	rightClauses = flattenAnd(std::move(R));
+		std::vector<std::unique_ptr<ASTNode>>	newClauses;
 		for (const auto& right : rightClauses)
 		{
 			for (const auto& left : leftClauses)
@@ -115,23 +116,23 @@ unique_ptr<ASTNode>	transformASTtoCNF( unique_ptr<ASTNode> node )
 		}
 		if (newClauses.empty())
 			return (nullptr);
-		unique_ptr<ASTNode>	newRoot = std::move(newClauses.back());
+		std::unique_ptr<ASTNode>	newRoot = std::move(newClauses.back());
 		newClauses.pop_back();
 		while (!newClauses.empty())
 		{
 			auto	left = std::move(newClauses.back());
 			newClauses.pop_back();
-			newRoot = make_unique<ASTNode>(NodeType::CONJUNCTION, "&", std::move(left), std::move(newRoot));
+			newRoot = std::make_unique<ASTNode>(NodeType::CONJUNCTION, "&", std::move(left), std::move(newRoot));
 		}
 		return (newRoot);
 	}
 	return (node);
 }
 
-void	printASTFormulaCNF( const string& formula )
+void	printASTFormulaCNF( const std::string& formula )
 {
-	string				infix;
-	unique_ptr<ASTNode>	ast;
+	std::string				infix;
+	std::unique_ptr<ASTNode>	ast;
 
 	infix = toInfix(formula);
 	ast = toAST(infix);
@@ -141,10 +142,10 @@ void	printASTFormulaCNF( const string& formula )
 	print2D(ast.get());
 }
 
-string	conjunctive_normal_form( const string& formula )
+std::string	conjunctive_normal_form( const std::string& formula )
 {
-	unique_ptr<ASTNode> ast;
-	string				infix, cnf;
+	std::unique_ptr<ASTNode> ast;
+	std::string				infix, cnf;
 
 	infix = toInfix(formula);
 	ast = toAST(infix);
