@@ -6,15 +6,15 @@
 /*   By: rrichard <rrichard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/27 10:05:16 by rrichard          #+#    #+#             */
-/*   Updated: 2025/11/27 10:05:39 by rrichard         ###   ########.fr       */
+/*   Updated: 2025/11/27 13:28:32 by rrichard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <vector>
 
-std::vector<int>	manual_intersection( const std::vector<int>& v1, const std::vector<int>& v2 )
+std::vector<int32_t>	manual_intersection( const std::vector<int32_t>& v1, const std::vector<int32_t>& v2 )
 {
-	std::vector<int>	res;
+	std::vector<int32_t>	res;
 	size_t				i = 0, j = 0;
 
 	while (i < v1.size() && j < v2.size())
@@ -33,9 +33,9 @@ std::vector<int>	manual_intersection( const std::vector<int>& v1, const std::vec
 	return (res);
 }
 
-std::vector<int>	manual_union( const std::vector<int>& v1, const std::vector<int>& v2 )
+std::vector<int32_t>	manual_union( const std::vector<int32_t>& v1, const std::vector<int32_t>& v2 )
 {
-	std::vector<int>	res;
+	std::vector<int32_t>	res;
 	size_t				i = 0, j = 0;
 
 	while (i < v1.size() && j < v2.size())
@@ -72,13 +72,13 @@ std::vector<int>	manual_union( const std::vector<int>& v1, const std::vector<int
  *
  * @param v1 The first sorted vector of integers (minuend set).
  * @param v2 The second sorted vector of integers (subtrahend set).
- * @return std::vector<int> A vector containing the set difference v1 \ v2.
+ * @return std::vector<int32_t> A vector containing the set difference v1 \ v2.
  *
  * @note Both input vectors must be sorted in ascending order for correct results.
  */
-std::vector<int>	manual_difference( const std::vector<int>& v1, const std::vector<int>& v2 )
+std::vector<int32_t>	manual_difference( const std::vector<int32_t>& v1, const std::vector<int32_t>& v2 )
 {
-	std::vector<int>	res;
+	std::vector<int32_t>	res;
 	size_t				i = 0, j = 0;
 
 	while (i < v1.size() && j < v2.size())
@@ -101,9 +101,9 @@ std::vector<int>	manual_difference( const std::vector<int>& v1, const std::vecto
 	return (res);
 }
 
-std::vector<int>	manual_symmetric_difference( const std::vector<int>& v1, const std::vector<int>& v2 )
+std::vector<int32_t>	manual_symmetric_difference( const std::vector<int32_t>& v1, const std::vector<int32_t>& v2 )
 {
-	std::vector<int>	res;
+	std::vector<int32_t>	res;
 	size_t				i = 0, j = 0;
 
 	while (i < v1.size() && j < v2.size())

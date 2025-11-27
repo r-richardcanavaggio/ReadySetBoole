@@ -6,7 +6,7 @@
 /*   By: rrichard <rrichard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/20 18:15:49 by rrichard          #+#    #+#             */
-/*   Updated: 2025/11/27 13:18:04 by rrichard         ###   ########.fr       */
+/*   Updated: 2025/11/27 13:27:58 by rrichard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,15 +17,15 @@
 #include <memory>
 #include <sstream>
 
-std::vector<int>	manual_intersection( const std::vector<int>& v1, const std::vector<int>& v2 );
-std::vector<int>	manual_union( const std::vector<int>& v1, const std::vector<int>& v2 );
-std::vector<int>	manual_difference( const std::vector<int>& v1, const std::vector<int>& v2 );
-std::vector<int>	manual_symmetric_difference( const std::vector<int>& v1, const std::vector<int>& v2 );
+std::vector<int32_t>	manual_intersection( const std::vector<int32_t>& v1, const std::vector<int32_t>& v2 );
+std::vector<int32_t>	manual_union( const std::vector<int32_t>& v1, const std::vector<int32_t>& v2 );
+std::vector<int32_t>	manual_difference( const std::vector<int32_t>& v1, const std::vector<int32_t>& v2 );
+std::vector<int32_t>	manual_symmetric_difference( const std::vector<int32_t>& v1, const std::vector<int32_t>& v2 );
 
-std::vector<int>	eval_set( const std::string& formula, std::vector<std::vector<int>>& sets )
+std::vector<int32_t>	eval_set( const std::string& formula, std::vector<std::vector<int32_t>>& sets )
 {
-	std::stack<std::vector<int>>	_stack;
-	std::vector<int>				univers;
+	std::stack<std::vector<int32_t>>	_stack;
+	std::vector<int32_t>				univers;
 
 	if (sets.empty())
 		throw std::runtime_error("Error: No set provided");
@@ -42,8 +42,8 @@ std::vector<int>	eval_set( const std::string& formula, std::vector<std::vector<i
 	{
 		if (c >= 'A' && c <= 'Z')
 		{
-			int index = c - 'A';
-			if (index < 0 || index >= static_cast<int>(sets.size()))
+			int32_t index = c - 'A';
+			if (index < 0 || index >= static_cast<int32_t>(sets.size()))
 				throw std::runtime_error("Error: variable out of range for provided sets");
 			_stack.push(sets[index]);
 		}
@@ -53,15 +53,15 @@ std::vector<int>	eval_set( const std::string& formula, std::vector<std::vector<i
 			{
 				if (_stack.empty())
 					throw std::runtime_error("Error: not enough operands for operator.");
-				std::vector<int>	operand = _stack.top(); _stack.pop();
+				std::vector<int32_t>	operand = _stack.top(); _stack.pop();
 				_stack.push(manual_difference(univers, operand));
 			}
 			else
 			{
 				if (_stack.size() < 2)
 					throw std::runtime_error("Error: not enough operands for operator.");
-				std::vector<int> rhs = _stack.top(); _stack.pop();
-				std::vector<int> lhs = _stack.top(); _stack.pop();
+				std::vector<int32_t> rhs = _stack.top(); _stack.pop();
+				std::vector<int32_t> lhs = _stack.top(); _stack.pop();
 				if (c == '&')
 					_stack.push(manual_intersection(lhs, rhs));
 				else if (c == '|')
@@ -70,14 +70,14 @@ std::vector<int>	eval_set( const std::string& formula, std::vector<std::vector<i
 					_stack.push(manual_symmetric_difference(lhs, rhs));
 				else if (c == '>')
 				{
-					std::vector<int> complement;
+					std::vector<int32_t> complement;
 
 					complement = manual_difference(univers, lhs);
 					_stack.push(manual_union(rhs, complement));
 				}
 				else if (c == '=')
 				{
-					std::vector<int> symdiff = manual_symmetric_difference(lhs, rhs);
+					std::vector<int32_t> symdiff = manual_symmetric_difference(lhs, rhs);
 					_stack.push(manual_difference(univers, symdiff));
 				}
 				else
@@ -90,9 +90,9 @@ std::vector<int>	eval_set( const std::string& formula, std::vector<std::vector<i
 	return (_stack.top());
 }
 
-int main( void )
+int32_t main( void )
 {
-	std::vector<std::vector<int>> sets = {{1, 2, 3}, {2,4}, {0,3}};
+	std::vector<std::vector<int32_t>> sets = {{1, 2, 3}, {2,4}, {0,3}};
 	try
 	{
 		std::string	input;
@@ -100,9 +100,9 @@ int main( void )
 		getline(std::cin, input);
 		while (input != "EXIT")
 		{
-			std::vector<int>	results = eval_set(input, sets);
+			std::vector<int32_t>	results = eval_set(input, sets);
 			std::cout << "[";
-			for (std::vector<int>::iterator it = results.begin(); it < results.end(); it++)
+			for (std::vector<int32_t>::iterator it = results.begin(); it < results.end(); it++)
 			{
 				if (it != results.end() - 1)
 					std::cout << *it << ", ";
