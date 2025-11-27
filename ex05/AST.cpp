@@ -6,12 +6,11 @@
 /*   By: rrichard <rrichard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/24 15:46:09 by rrichard          #+#    #+#             */
-/*   Updated: 2025/11/24 16:16:44 by rrichard         ###   ########.fr       */
+/*   Updated: 2025/11/27 17:03:56 by rrichard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "AST.hpp"
-#include <algorithm>
 
 std::unique_ptr<ASTNode>	parsePrimary( std::string::iterator &it, std::string::iterator end )
 {
@@ -105,19 +104,4 @@ std::unique_ptr<ASTNode>	parseFormula( std::string::iterator &it, std::string::i
 		left = std::make_unique<ASTNode>(NodeType::LOGICAL_EQUIVALENCE, "=", std::move(left), std::move(right));
 	}
 	return (left);
-}
-
-std::unique_ptr<ASTNode>	toAST( const std::string& formula )
-{	
-	std::string					input;
-	std::string::iterator		it;
-	std::unique_ptr<ASTNode>	ast;
-
-	input = formula;
-	input.erase(remove(input.begin(), input.end(), ' '), input.end());
-	it = input.begin();
-	ast = parseFormula(it, input.end());
-	if (it != input.end())
-		throw std::runtime_error(std::string("Unexpected token at end of input: ") + std::string(1, *it));
-	return (ast);
 }

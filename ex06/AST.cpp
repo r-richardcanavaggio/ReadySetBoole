@@ -6,12 +6,11 @@
 /*   By: rrichard <rrichard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/24 15:46:09 by rrichard          #+#    #+#             */
-/*   Updated: 2025/11/25 18:23:00 by rrichard         ###   ########.fr       */
+/*   Updated: 2025/11/27 17:03:43 by rrichard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "AST.hpp"
-#include <algorithm>
 
 std::unique_ptr<ASTNode>	parsePrimary( std::string::iterator &it, std::string::iterator end )
 {

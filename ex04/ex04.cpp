@@ -6,7 +6,7 @@
 /*   By: rrichard <rrichard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/19 15:03:28 by rrichard          #+#    #+#             */
-/*   Updated: 2025/11/24 15:37:03 by rrichard         ###   ########.fr       */
+/*   Updated: 2025/11/26 15:12:59 by rrichard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,12 +99,12 @@ void	print_truth_table( const std::string& input )
 
 	for (size_t i = 0; i < limit; i++)
 	{
-		std::string expr = input;
+		std::string	expr = input;
 		for (size_t j = 0; j < n; j++)
 		{
 			bool	isTrue = (i >> (n - 1 - j)) & 1U;
-			char var = vars[j];
-			char val = isTrue ? '1' : '0';
+			char 	var = vars[j];
+			char 	val = isTrue ? '1' : '0';
 			for (size_t k = 0; k < expr.length(); k++)
 			{
 				if (expr[k] == var)

@@ -6,14 +6,12 @@
 /*   By: rrichard <rrichard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/20 18:15:49 by rrichard          #+#    #+#             */
-/*   Updated: 2025/10/26 11:08:14 by rrichard         ###   ########.fr       */
+/*   Updated: 2025/11/27 13:29:56 by rrichard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <iostream>
 #include <iomanip>
-
-using namespace std;
 
 double	map( uint16_t x, uint16_t y )
 {
@@ -31,11 +29,11 @@ double	map( uint16_t x, uint16_t y )
 
 int main( void )
 {
-	cout << map(0, 0) << endl;
-	cout << map(65535, 65535) << endl;
-	cout << map(65535, 0) << endl;
-	cout << map(0, 65535) << endl;
-	cout << map(65535, 32767) << endl;
-	cout << map(12345, 54321) << endl;
+	std::cout << map(0, 0) << std::endl;
+	std::cout << map(65535, 65535) << std::endl;
+	std::cout << map(65535, 0) << std::endl;
+	std::cout << map(0, 65535) << std::endl;
+	std::cout << map(65535, 32767) << std::endl;
+	std::cout << map(12345, 54321) << std::endl;
 	return (0);
 }
