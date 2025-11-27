@@ -6,7 +6,7 @@
 /*   By: rrichard <rrichard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/20 18:15:49 by rrichard          #+#    #+#             */
-/*   Updated: 2025/10/25 15:44:03 by rrichard         ###   ########.fr       */
+/*   Updated: 2025/11/27 13:18:04 by rrichard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,131 +14,109 @@
 #include <iostream>
 #include <string>
 #include <stack>
-#include <unordered_map>
-#include <cmath>
 #include <memory>
-#include <algorithm>
 #include <sstream>
 
-using namespace std;
+std::vector<int>	manual_intersection( const std::vector<int>& v1, const std::vector<int>& v2 );
+std::vector<int>	manual_union( const std::vector<int>& v1, const std::vector<int>& v2 );
+std::vector<int>	manual_difference( const std::vector<int>& v1, const std::vector<int>& v2 );
+std::vector<int>	manual_symmetric_difference( const std::vector<int>& v1, const std::vector<int>& v2 );
 
-vector<int>	eval_set( const string& formula, vector<vector<int>> sets )
+std::vector<int>	eval_set( const std::string& formula, std::vector<std::vector<int>>& sets )
 {
-	stack<vector<int>>					_stack;
-	unordered_map<char, vector<int>>	_map;
-	vector<int>							univers;
+	std::stack<std::vector<int>>	_stack;
+	std::vector<int>				univers;
 
+	if (sets.empty())
+		throw std::runtime_error("Error: No set provided");
 	for (auto& s : sets)
 	{
-		sort(s.begin(), s.end());
-		s.erase(unique(s.begin(), s.end()), s.end());
+		std::sort(s.begin(), s.end());
+		auto last = std::unique(s.begin(), s.end());
+		s.erase(last, s.end());
 	}
-	for (size_t i = 0; i < sets.size(); i++)
-		_map['A' + static_cast<char>(i)] = sets[i];
-	for (auto& current : sets)
-	{
-		sort(univers.begin(), univers.end());
-		vector<int>	temp;
-		set_union(univers.begin(), univers.end(), current.begin(), current.end(), back_inserter(temp));
-		univers = std::move(temp);
-	}
-	for (char c : formula)
+	univers = sets[0];
+	for (size_t i = 1; i < sets.size(); i++)
+		univers = manual_union(univers, sets[i]);
+	for (auto& c : formula)
 	{
 		if (c >= 'A' && c <= 'Z')
 		{
-			auto itv = _map.find(c);
-			if (itv == _map.end())
-				throw runtime_error("Error: variable out of range for provided sets");
-			_stack.push(itv->second);
+			int index = c - 'A';
+			if (index < 0 || index >= static_cast<int>(sets.size()))
+				throw std::runtime_error("Error: variable out of range for provided sets");
+			_stack.push(sets[index]);
 		}
 		else
 		{
 			if (c == '!')
 			{
-				vector<int> res, operand = _stack.top(); _stack.pop();
-				set_difference(univers.begin(), univers.end(), operand.begin(), operand.end(), back_inserter(res));
-				_stack.push(res);
+				if (_stack.empty())
+					throw std::runtime_error("Error: not enough operands for operator.");
+				std::vector<int>	operand = _stack.top(); _stack.pop();
+				_stack.push(manual_difference(univers, operand));
 			}
 			else
 			{
 				if (_stack.size() < 2)
-					throw runtime_error("Error: not enough operands for operator.");
-				vector<int> operand1 = _stack.top(); _stack.pop();
-				vector<int> operand2 = _stack.top(); _stack.pop();
+					throw std::runtime_error("Error: not enough operands for operator.");
+				std::vector<int> rhs = _stack.top(); _stack.pop();
+				std::vector<int> lhs = _stack.top(); _stack.pop();
 				if (c == '&')
-				{
-					vector<int>	res;
-
-					set_intersection(operand1.begin(), operand1.end(), operand2.begin(), operand2.end(), back_inserter(res));
-					_stack.push(res);
-				}
+					_stack.push(manual_intersection(lhs, rhs));
 				else if (c == '|')
-				{
-					vector<int>	res;
-
-					set_union(operand1.begin(), operand1.end(), operand2.begin(), operand2.end(), back_inserter(res));
-					_stack.push(res);
-				}
+					_stack.push(manual_union(lhs, rhs));
 				else if (c == '^')
-				{
-					vector<int>	res;
-
-					set_symmetric_difference(operand1.begin(), operand1.end(), operand2.begin(), operand2.end(), back_inserter(res));
-					_stack.push(res);
-				}
+					_stack.push(manual_symmetric_difference(lhs, rhs));
 				else if (c == '>')
 				{
-					vector<int> complement, res;
-					
-					set_difference(univers.begin(), univers.end(), operand2.begin(), operand2.end(), back_inserter(complement));
-					set_union(operand1.begin(), operand1.end(), complement.begin(), complement.end(), back_inserter(res));
-					_stack.push(res);
+					std::vector<int> complement;
+
+					complement = manual_difference(univers, lhs);
+					_stack.push(manual_union(rhs, complement));
 				}
 				else if (c == '=')
 				{
-					vector<int> symdiff, res;
-					
-					set_symmetric_difference(operand1.begin(), operand1.end(), operand2.begin(), operand2.end(), back_inserter(symdiff));
-					set_difference(univers.begin(), univers.end(), symdiff.begin(), symdiff.end(), back_inserter(res));
-					_stack.push(res);
+					std::vector<int> symdiff = manual_symmetric_difference(lhs, rhs);
+					_stack.push(manual_difference(univers, symdiff));
 				}
 				else
-					throw runtime_error("Error: operator not supported");
+					throw std::runtime_error("Error: operator not supported");
 			}
 		}
 	}
 	if (_stack.size() != 1)
-		throw runtime_error("Error: wrong expression.");
+		throw std::runtime_error("Error: wrong expression.");
 	return (_stack.top());
 }
 
 int main( void )
 {
-	vector<vector<int>> sets = {{1, 2, 3}, {2,4}, {0,3}};
+	std::vector<std::vector<int>> sets = {{1, 2, 3}, {2,4}, {0,3}};
 	try
 	{
-		string	input;
-		cout << "A=1 2 3\nB=2 4\nC=0 3\nEnter propositional formula: ";
-		getline(cin, input);
+		std::string	input;
+		std::cout << "A=1 2 3\nB=2 4\nC=0 3\nEnter propositional formula: ";
+		getline(std::cin, input);
 		while (input != "EXIT")
 		{
-			vector<int>			results = eval_set(input, sets);
-			cout << "[";
-			for (vector<int>::iterator it = results.begin(); it < results.end(); it++)
+			std::vector<int>	results = eval_set(input, sets);
+			std::cout << "[";
+			for (std::vector<int>::iterator it = results.begin(); it < results.end(); it++)
 			{
 				if (it != results.end() - 1)
-					cout << *it << ", ";
+					std::cout << *it << ", ";
 				else
-					cout << *it;
+					std::cout << *it;
 			}
-			cout << "]";
-			cout << endl << "Enter propositional formula: ";
-			getline(cin, input);
+			std::cout << "]";
+			std::cout << std::endl << "Enter propositional formula: ";
+			getline(std::cin, input);
 		}
 	}
 	catch (std::exception& e)
 	{
-		cerr << e.what() << endl;
+		std::cerr << e.what() << std::endl;
 	}
 	return (0);
 }
