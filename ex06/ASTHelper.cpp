@@ -6,11 +6,12 @@
 /*   By: rrichard <rrichard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/24 15:59:51 by rrichard          #+#    #+#             */
-/*   Updated: 2025/11/26 14:17:11 by rrichard         ###   ########.fr       */
+/*   Updated: 2025/11/28 12:16:05 by rrichard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "AST.hpp"
+#include <regex>
 
 std::unique_ptr<ASTNode>	eliminateImplications( std::unique_ptr<ASTNode> node )
 {
@@ -123,7 +124,7 @@ std::unique_ptr<ASTNode>	toAST( const std::string& formula )
 	std::unique_ptr<ASTNode>	ast;
 
 	input = formula;
-	input.erase(remove(input.begin(), input.end(), ' '), input.end());
+	input = std::regex_replace(input, std::regex(" "), "");
 	it = input.begin();
 	ast = parseFormula(it, input.end());
 	if (it != input.end())

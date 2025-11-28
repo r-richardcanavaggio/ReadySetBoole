@@ -3,7 +3,7 @@
 ################################################################################
 
 CXX			:= c++
-CXXFLAGS	:= -Werror -Wall -Wextra -std=c++23 -MMD -MP
+CXXFLAGS	:= -Werror -Wall -Wextra -std=c++14 -MMD -MP
 
 BIN_DIR		:= bin
 OBJ_DIR		:= .obj
@@ -20,9 +20,6 @@ EX_DIRS		:=	ex00 \
 				ex09 \
 				ex10 \
 				ex11 \
-				ex12 \
-				ex13 \
-				ex14 \
 
 ################################################################################
 #                                 SOURCE FILES                                 #
@@ -92,7 +89,7 @@ $(OBJ_DIR)/$(1):
 	@mkdir -p $$@
 
 run-$(1): $(1)
-	@./$(BIN_DIR)/$(1)
+	@./$(BIN_DIR)/$(1) "$(ARGS)"
 
 clean-$(1): COM_STRING = Cleaning
 clean-$(1):

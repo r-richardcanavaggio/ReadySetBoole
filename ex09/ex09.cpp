@@ -6,7 +6,7 @@
 /*   By: rrichard <rrichard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/20 18:15:49 by rrichard          #+#    #+#             */
-/*   Updated: 2025/11/27 13:27:58 by rrichard         ###   ########.fr       */
+/*   Updated: 2025/11/28 13:07:02 by rrichard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@ std::vector<int32_t>	manual_intersection( const std::vector<int32_t>& v1, const 
 std::vector<int32_t>	manual_union( const std::vector<int32_t>& v1, const std::vector<int32_t>& v2 );
 std::vector<int32_t>	manual_difference( const std::vector<int32_t>& v1, const std::vector<int32_t>& v2 );
 std::vector<int32_t>	manual_symmetric_difference( const std::vector<int32_t>& v1, const std::vector<int32_t>& v2 );
+void					manual_sort_and_unique( std::vector<int32_t>& v );
 
 std::vector<int32_t>	eval_set( const std::string& formula, std::vector<std::vector<int32_t>>& sets )
 {
@@ -30,11 +31,7 @@ std::vector<int32_t>	eval_set( const std::string& formula, std::vector<std::vect
 	if (sets.empty())
 		throw std::runtime_error("Error: No set provided");
 	for (auto& s : sets)
-	{
-		std::sort(s.begin(), s.end());
-		auto last = std::unique(s.begin(), s.end());
-		s.erase(last, s.end());
-	}
+		manual_sort_and_unique(s);
 	univers = sets[0];
 	for (size_t i = 1; i < sets.size(); i++)
 		univers = manual_union(univers, sets[i]);
