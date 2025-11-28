@@ -6,13 +6,14 @@
 /*   By: rrichard <rrichard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/20 18:15:49 by rrichard          #+#    #+#             */
-/*   Updated: 2025/11/26 15:23:35 by rrichard         ###   ########.fr       */
+/*   Updated: 2025/11/27 21:45:00 by rrichard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <vector>
 #include <iostream>
 #include <string>
+#include <stack>
 
 bool	evaluate( const std::string& formula )
 {

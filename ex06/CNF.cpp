@@ -6,12 +6,13 @@
 /*   By: rrichard <rrichard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/24 12:59:04 by rrichard          #+#    #+#             */
-/*   Updated: 2025/11/26 14:54:18 by rrichard         ###   ########.fr       */
+/*   Updated: 2025/11/27 21:44:30 by rrichard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "RPN.hpp"
 #include "AST.hpp"
+#include <vector>
 
 std::vector<std::unique_ptr<ASTNode>>	flattenAnd( std::unique_ptr<ASTNode> node )
 {
