@@ -6,7 +6,7 @@
 /*   By: rrichard <rrichard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/20 18:15:49 by rrichard          #+#    #+#             */
-/*   Updated: 2025/11/27 21:45:00 by rrichard         ###   ########.fr       */
+/*   Updated: 2025/12/02 13:59:31 by rrichard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,20 +37,18 @@ bool	evaluate( const std::string& formula )
 			{
 				if (_stack.size() < 2)
 					throw std::runtime_error("Error: missing operand for binary operator");
-				bool operand1 = _stack.top();
-				_stack.pop();
-				bool operand2 = _stack.top();
-				_stack.pop();
+				bool right = _stack.top(); _stack.pop();
+				bool left = _stack.top(); _stack.pop();
 				if (c == '&')
-					_stack.push(operand1 && operand2);
+					_stack.push(left && right);
 				else if (c == '|')
-					_stack.push(operand1 || operand2);
+					_stack.push(left || right);
 				else if (c == '^')
-					_stack.push(operand1 ^ operand2);
+					_stack.push(left ^ right);
 				else if (c == '>')
-					_stack.push(!operand1 || operand2);
+					_stack.push(!left || right);
 				else if (c == '=')
-					_stack.push(operand1 == operand2);
+					_stack.push(left == right);
 				else
 					throw std::runtime_error("Error: operator not supported");
 			}

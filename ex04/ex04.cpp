@@ -6,7 +6,7 @@
 /*   By: rrichard <rrichard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/19 15:03:28 by rrichard          #+#    #+#             */
-/*   Updated: 2025/11/26 15:12:59 by rrichard         ###   ########.fr       */
+/*   Updated: 2025/12/02 11:11:42 by rrichard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,20 +37,18 @@ bool	eval_formula( const std::string& formula )
 			{
 				if (stack.size() < 2)
 					throw std::runtime_error("Error: not enough operands for operator.");
-				bool operand1 = stack.top();
-				stack.pop();
-				bool operand2 = stack.top();
-				stack.pop();
+				bool right = stack.top(); stack.pop();
+				bool left = stack.top(); stack.pop();
 				if (c == '&')
-					stack.push(operand1 && operand2);
+					stack.push(left && right);
 				else if (c == '|')
-					stack.push(operand1 || operand2);
+					stack.push(left || right);
 				else if (c == '^')
-					stack.push(operand1 ^ operand2);
+					stack.push(left ^ right);
 				else if (c == '>')
-					stack.push(!operand1 || operand2);
+					stack.push(!left || right);
 				else if (c == '=')
-					stack.push(operand1 == operand2);
+					stack.push(left == right);
 				else
 					throw std::runtime_error("Error: operator not supported");
 			}
@@ -79,8 +77,6 @@ std::vector<char> buildVarList( const std::string& input )
 			}
 		}
 	}
-	if (res.size() < 2)
-		throw std::runtime_error("Error: not enough variables");
 	return (res);
 }
 
