@@ -1,3 +1,6 @@
 en.subject.pdf
 *.o
 .vscode
+bin
+.obj/
+.github/
