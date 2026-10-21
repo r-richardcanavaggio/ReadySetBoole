@@ -58,7 +58,7 @@ ReadySetBoole/
 * **Logical Normalization Pipeline**:
   * **Material Implication & Equivalence Elimination**: $A \Rightarrow B \equiv \neg A \lor B$ and $A \Leftrightarrow B \equiv (A \land B) \lor (\neg A \land \neg B)$.
   * **De Morgan's Laws & Double Negation**: Pushed negations down to literals for **Negation Normal Form (NNF)**.
-  * **Conjunctive Normal Form (CNF)**: Recursively distributed $\lor$ over $\land$ ($A \lor (B \land C) \equiv (A \lor B) \land (A \lor C)$) with tree cloning and canonical node deduplication.
+  * **Conjunctive Normal Form (CNF)**: Recursively distributed $\lor$ over $\land$ ($A \lor $($B \land C$) $\equiv (A \lor B) \land$ ($A \lor C$)) with tree cloning and canonical node deduplication.
 
 ### 3. Solvers & Combinatorial Algorithms
 * **Boolean Satisfiability (SAT)**: Formulated propositional satisfiability testing by traversing the variable assignment space ($2^N$ states) and verifying expression models.
